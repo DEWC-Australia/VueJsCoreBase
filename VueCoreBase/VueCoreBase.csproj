@@ -48,7 +48,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Middleware\" />
     <Folder Include="Attributes\" />
     <Folder Include="wwwroot\userimages\" />
   </ItemGroup>

@@ -15,8 +15,11 @@ using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-
+using Middleware.Exception;
+using Middleware.Logger;
+using Services.Email;
 
 namespace VueCoreBase
 {
@@ -40,11 +43,33 @@ namespace VueCoreBase
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-            
+
+            // Add application services.
+            services.AddTransient<IEmailSender, EmailSender>();
+
             services.AddDbContext<ASPIdentityContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, ApplicationRole>()
+            services.AddIdentity<ApplicationUser, ApplicationRole>(
+                opts =>
+                {
+                    opts.Password.RequireDigit = true;
+                    opts.Password.RequireLowercase = true;
+                    opts.Password.RequireUppercase = true;
+                    opts.Password.RequireNonAlphanumeric = false;
+                    opts.Password.RequiredLength = 8;
+
+                    // Lockout settings
+                    opts.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+                    opts.Lockout.MaxFailedAccessAttempts = 5;
+
+                    // User settings
+                    opts.User.RequireUniqueEmail = true;
+
+                    // User to confirm via work email
+                    opts.SignIn.RequireConfirmedEmail = true;
+                }
+                )
             .AddEntityFrameworkStores<ASPIdentityContext>()
             .AddDefaultTokenProviders();
 
@@ -77,18 +102,18 @@ namespace VueCoreBase
                     };
                 });
 
-    
-            services.AddMvc(options =>
-            {
-                //  options.Filters.Add(new ApiExceptionFilter());
-            })
-            .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_1);
+            services.AddMvc(options => {options.Filters.Add(new ApiExceptionFilter());})
+                .AddJsonOptions( options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore)
+                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_1);
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            loggerFactory.AddDebug(LogLevel.Trace);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -105,6 +130,8 @@ namespace VueCoreBase
             app.UseHttpsRedirection();
             app.UseCookiePolicy(); // optional GDPR
             app.UseStaticFiles();
+
+            app.UseMiddleware<Logging>();
 
             app.UseAuthentication();
 
