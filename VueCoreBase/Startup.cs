@@ -50,6 +50,11 @@ namespace VueCoreBase
             services.AddDbContext<ASPIdentityContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddDbContext<VueCoreBaseContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            
+
             services.AddIdentity<ApplicationUser, ApplicationRole>(
                 opts =>
                 {
