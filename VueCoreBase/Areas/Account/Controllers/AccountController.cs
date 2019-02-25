@@ -6,18 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using VueCoreBase.Controllers;
 
 namespace Areas.Account.Controllers
 {
-    [Route("api/[controller]")]
-    public class AccountController : Controller
+    public class AccountController : ApiController
     {
         private readonly UserManager<ApplicationUser> _userManager;
-
-        public AccountController(UserManager<ApplicationUser> userManager)
-        {
-            _userManager = userManager;
-        }
 
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)

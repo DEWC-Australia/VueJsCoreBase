@@ -20,6 +20,7 @@ using Microsoft.IdentityModel.Tokens;
 using Middleware.Exception;
 using Middleware.Logger;
 using Services.Email;
+using VueCoreBase.Data.VueCoreBase;
 
 namespace VueCoreBase
 {
@@ -136,7 +137,7 @@ namespace VueCoreBase
             app.UseCookiePolicy(); // optional GDPR
             app.UseStaticFiles();
 
-            app.UseMiddleware<Logging>();
+            app.UseMiddleware<ContextLogger>();
 
             app.UseAuthentication();
 

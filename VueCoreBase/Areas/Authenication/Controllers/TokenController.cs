@@ -11,11 +11,11 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using VueCoreBase.Controllers;
 
 namespace Areas.Authenication.Controllers
 {
-    [Route("api/[controller]")]
-    public class TokenController : Controller
+    public class TokenController : ApiController
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;

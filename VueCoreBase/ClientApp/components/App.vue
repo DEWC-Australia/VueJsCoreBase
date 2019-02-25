@@ -3,18 +3,29 @@
         <p-navbar></p-navbar>
         <transition name="fade" mode="in-out">
             <router-view />
+            <auth-nav-item />
         </transition>
         <p-footer></p-footer>
+        <auth-modal :show="showAuthModal" />
     </div>
 </template>
 <script>
     import PNavbar from './Layout/Navbar.vue';
     import PFooter from './Layout/Footer.vue';
+    import AuthNavItem from "./App/AuthNavItem.vue";
+    import AuthModal from "./App/AuthModal.vue";
     export default {
         name: 'app',
         components: {
             PNavbar,
-            PFooter
+            PFooter,
+            AuthNavItem,
+            AuthModal,
+        },
+        computed: {
+            showAuthModal() {
+                return this.$store.state.showAuthModal;
+            }
         }
     }
 </script>
