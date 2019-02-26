@@ -1,9 +1,10 @@
 ﻿<template>
     <div class="app">
         <p-navbar></p-navbar>
+        <auth-nav-item />
         <transition name="fade" mode="in-out">
             <router-view />
-            <auth-nav-item />
+
         </transition>
         <p-footer></p-footer>
         <auth-modal :show="showAuthModal" />
@@ -20,7 +21,7 @@
             PNavbar,
             PFooter,
             AuthNavItem,
-            AuthModal,
+            AuthModal
         },
         computed: {
             showAuthModal() {
@@ -30,6 +31,8 @@
     }
 </script>
 <style lang="scss">
+    .modal {display: block; }
+
     /*Force html and body to the full size of the screen and div app and page classes to 100% of the body*/
     html,
     body{
