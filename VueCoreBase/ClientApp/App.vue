@@ -10,10 +10,10 @@
     </div>
 </template>
 <script>
-    import PNavbar from './Layout/Navbar.vue';
-    import PFooter from './Layout/Footer.vue';
-    import AuthNavItem from "./App/AuthNavItem.vue";
-    import AuthModal from "./App/AuthModal.vue";
+    import PNavbar from './components/Layout/Navbar.vue';
+    import PFooter from './components/Layout/Footer.vue';
+    import AuthNavItem from "./components/App/AuthNavItem.vue";
+    import AuthModal from "./components/App/AuthModal.vue";
     export default {
         name: 'app',
         components: {

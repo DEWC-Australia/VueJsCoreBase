@@ -110,17 +110,14 @@ namespace VueCoreBase
 
             services.AddMvc(options => {options.Filters.Add(new ApiExceptionFilter());})
                 .AddJsonOptions( options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore)
-                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_1);
+                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_2);
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug(LogLevel.Trace);
-
-            if (env.IsDevelopment())
+             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
@@ -136,8 +133,6 @@ namespace VueCoreBase
             app.UseHttpsRedirection();
             app.UseCookiePolicy(); // optional GDPR
             app.UseStaticFiles();
-
-            app.UseMiddleware<ContextLogger>();
 
             app.UseAuthentication();
 

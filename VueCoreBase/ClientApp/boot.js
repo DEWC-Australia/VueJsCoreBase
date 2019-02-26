@@ -10,11 +10,11 @@ import store from "./store";
 Vue.use(VueRouter);
 Vue.use(BootstrapVue);
 
-import Home from "./pages/Home.vue";
-import Contact from './pages/Contact.vue';
-import About from './pages/About.vue';
-import Login from './pages/Login.vue';
-import Register from './pages/Register.vue';
+import Home from "./pages/Public/Home.vue";
+import Contact from './pages/Public/Contact.vue';
+import About from './pages/Public/About.vue';
+import Login from './pages/Public/Login.vue';
+import Register from './pages/Public/Register.vue';
 
 
 const routes = [
@@ -41,5 +41,5 @@ new Vue({
     el: '#app-root',
     router: router,
     store,
-    render: h => h(require('./components/App.vue'))
+    render: h => h(require('./App.vue'))
 });
