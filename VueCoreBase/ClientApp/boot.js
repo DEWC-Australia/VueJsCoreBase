@@ -1,44 +1,42 @@
+// Import VueJs libary installed by npm and configured by webpack
 import Vue from 'vue';
-import VueRouter from 'vue-router';
+// Import VueRouter from ./router/index.js
+import router from "./router";
+// Import Store (Vuex) from ./store/index.js
+import store from "./store";
+// Import BootstrapVue install by npm and configured by webpack
+// provide Bootstrap 4 support
+// scss support is provided from install packages
 import BootstrapVue from "bootstrap-vue";
-import NProgress from "nprogress";
+
+// import the bootstrap and bootstrap-vue css
 import "../node_modules/bootstrap-vue/node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/bootstrap-vue/dist/bootstrap-vue.css";
-import store from "./store";
 
-Vue.use(VueRouter);
+//helpers
+// axios interceptor for JWT refresh tokens
+import "./helpers/interceptors";
+
+// attach BootstrapVue
 Vue.use(BootstrapVue);
 
-import Home from "./pages/Public/Home.vue";
-import Contact from './pages/Public/Contact.vue';
-import About from './pages/Public/About.vue';
-import Login from './pages/Public/Login.vue';
-import Register from './pages/Public/Register.vue';
+// Setup authorisation upon initialisation using store and axios header
+import axios from "axios";
+const initialStore = localStorage.getItem("store");
 
+if (initialStore) {
+    store.commit("initialise", JSON.parse(initialStore));
+    if (store.getters.isAuthenticated) {
+        axios.defaults.headers.common["Authorization"] = `Bearer ${
+            store.state.auth.access_token
+            }`;
+    }
+}
 
-const routes = [
-    { path: "/", component: Home },
-    { path: "/contact", component: Contact},
-    { path: "/about", component: About},   
-    { path: "/login", component: Login },
-    { path: "/register", component: Register },   
-    { path: "*", redirect: "/" }
-];
-
-const router = new VueRouter({ mode: 'history', routes: routes });
-
-router.beforeEach((to, from, next) => {
-    NProgress.start();
-    next();
-});
-
-router.afterEach((to, from) => {
-    NProgress.done();
-});
-
+// create the Vue App with the root located at ./App.vue
 new Vue({
     el: '#app-root',
-    router: router,
+    router,
     store,
     render: h => h(require('./App.vue'))
 });

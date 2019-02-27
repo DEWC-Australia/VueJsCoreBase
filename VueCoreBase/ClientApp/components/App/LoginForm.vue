@@ -23,6 +23,7 @@
     </form>
 </template>
 <script>
+    import axios from "axios";
     export default {
         name: "login-form",
         props: {
@@ -49,6 +50,8 @@
                     email: this.email,
                     password: this.password
                 };
+
+
                 this.$store
                     .dispatch("login", payload)
                     .then(response => {
@@ -62,6 +65,7 @@
                     .catch(error => {
                         this.error = error.data;
                     });
+                    
             },
             close() {
                 this.$emit("close");

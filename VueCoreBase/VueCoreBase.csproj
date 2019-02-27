@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="Microsoft.AspNetCore.App"/>
+	<PackageReference Include="Microsoft.AspNetCore.App" />
 	<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.2" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.2" />
@@ -53,7 +53,6 @@
     <Folder Include="ClientApp\mixins\" />
     <Folder Include="ClientApp\pages\Areas\" />
     <Folder Include="ClientApp\translations\" />
-    <Folder Include="ClientApp\router\" />
     <Folder Include="wwwroot\userimages\" />
   </ItemGroup>
 

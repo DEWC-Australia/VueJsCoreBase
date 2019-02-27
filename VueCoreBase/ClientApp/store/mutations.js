@@ -1,4 +1,20 @@
-﻿export const showAuthModal = state => {
+﻿/*
+ * Vuex Mutation Summary
+ * 
+ * Method: this.$store.Commit()
+ * 
+ * Mutations are the only manner for which global state change can occur.
+ * They do not contain any logic and only perform assignment on Vuex variables.
+ * 
+ * Mutations are called by Vuex commits and are synchronous in nature.
+ * 
+ * This allows for a Mutation history to be generated to ensure a history of state changes 
+ * is transparent and traceable.
+ * 
+ * 
+ */ 
+
+export const showAuthModal = state => {
     state.showAuthModal = true;
 };
 export const hideAuthModal = state => {
