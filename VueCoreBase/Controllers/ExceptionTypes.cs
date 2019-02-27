@@ -54,6 +54,11 @@ namespace Controllers.Exceptions
 
     public class ExceptionErrors
     {
+        public class AccountErrors
+        {
+            public const string UserExists = "A user with that e-mail address already exists.";
+            
+        }
         public class AuthorisationErrors
         {
             public const string NotAuthorised = "You are not authorised to conduct this action.";

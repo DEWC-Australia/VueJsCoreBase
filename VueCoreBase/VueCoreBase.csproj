@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\mixins\index.js" />
     <None Remove="ClientApp\store\index.js" />
   </ItemGroup>
 
@@ -43,6 +44,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="ClientApp\mixins\index.js">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
     <EmbeddedResource Include="ClientApp\store\index.js">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
@@ -50,7 +54,6 @@
 
   <ItemGroup>
     <Folder Include="Attributes\" />
-    <Folder Include="ClientApp\mixins\" />
     <Folder Include="ClientApp\pages\Areas\" />
     <Folder Include="ClientApp\translations\" />
     <Folder Include="wwwroot\userimages\" />

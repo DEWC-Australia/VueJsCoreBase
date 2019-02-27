@@ -15,8 +15,8 @@
             <!-- Right aligned nav items -->
             <b-navbar-nav class="ml-auto">
 
-                <b-nav-item @click="$router.push({ path: navLinks.login})" >Login</b-nav-item>
-                <b-nav-item @click="$router.push({ path: navLinks.register})" >Register</b-nav-item>
+                <b-nav-item >Login</b-nav-item>
+                <b-nav-item >Register</b-nav-item>
 
                 <b-nav-item-dropdown right>
                     <!-- Using button-content slot -->
@@ -32,15 +32,13 @@
     </b-navbar>
 </template>
 <script>
+    import { clientRoutes } from '../../variables/variables.js'
     export default {
         name: "nav-bar",
         data(){
             return{
                 navLinks: {
-                    home: '/',
-                    login: '/login',
-                    register: '/register',
-                    profile: '/profile'
+                    home: clientRoutes.home,
                 }
             }
         }

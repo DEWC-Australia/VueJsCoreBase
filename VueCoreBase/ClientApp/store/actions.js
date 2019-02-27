@@ -14,6 +14,7 @@
 
 // import the axios ajax library for use by Vuex actions
 import axios from "axios";
+import { apiRoutes, httpHeaders } from '../variables/variables.js';
 
 /**
  * 
@@ -45,7 +46,7 @@ import axios from "axios";
  * @returns {Promise} returns a promise http reponse
  */
 
-var tokenUrl = "/api/token";
+
 
 export const login = ({ commit }, payload) => {
 
@@ -55,13 +56,13 @@ export const login = ({ commit }, payload) => {
 
         // call axios http post
         axios
-            .post(tokenUrl, payload)
+            .post(apiRoutes.authenication.tokenUrl, payload)
             .then(response => {
                 // successful response from the token action is the token, refrech token, user id and name
                 const auth = response.data;
 
                 // set the bearer token for all susequent axios requests
-                axios.defaults.headers.common["Authorization"] = `Bearer ${
+                axios.defaults.headers.common[httpHeaders.auth] = `Bearer ${
                     auth.access_token
                     }`;
 
@@ -78,7 +79,7 @@ export const login = ({ commit }, payload) => {
                 commit("loginError");
 
                 // remove the token from axios based on an error being detected
-                delete axios.defaults.headers.common["Authorization"];
+                delete axios.defaults.headers.common[httpHeaders.auth];
 
                 // return from the promise
                 reject(error.response);
@@ -98,8 +99,9 @@ export const register = ({ commit }, payload) => {
     return new Promise((resolve, reject) => {
         // commit registerRequest Mutation (show login modal)
         commit("registerRequest");
+
         axios
-            .post("/api/account", payload)
+            .post(apiRoutes.account.registerUrl, payload)
             .then(response => {
                 // commit registerRequest Mutation
                 commit("registerSuccess");

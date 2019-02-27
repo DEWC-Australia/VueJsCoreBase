@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using Services.Email;
 
-namespace Extensions.Email
+
+namespace Services.Email
 {
     public static class EmailSenderExtensions
     {

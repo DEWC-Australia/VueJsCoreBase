@@ -4,6 +4,7 @@ import Vue from 'vue';
 import router from "./router";
 // Import Store (Vuex) from ./store/index.js
 import store from "./store";
+
 // Import BootstrapVue install by npm and configured by webpack
 // provide Bootstrap 4 support
 // scss support is provided from install packages
@@ -17,6 +18,8 @@ import "../node_modules/bootstrap-vue/dist/bootstrap-vue.css";
 // axios interceptor for JWT refresh tokens
 import "./helpers/interceptors";
 
+import { httpHeaders } from './variables/variables.js';
+
 // attach BootstrapVue
 Vue.use(BootstrapVue);
 
@@ -27,7 +30,7 @@ const initialStore = localStorage.getItem("store");
 if (initialStore) {
     store.commit("initialise", JSON.parse(initialStore));
     if (store.getters.isAuthenticated) {
-        axios.defaults.headers.common["Authorization"] = `Bearer ${
+        axios.defaults.headers.common[httpHeaders.auth] = `Bearer ${
             store.state.auth.access_token
             }`;
     }

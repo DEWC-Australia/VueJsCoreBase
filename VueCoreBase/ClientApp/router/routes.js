@@ -1,15 +1,14 @@
-﻿import Home from "../pages/Public/Home.vue";
+﻿// import the components to route to
+import Home from "../pages/Public/Home.vue";
 import Contact from '../pages/Public/Contact.vue';
 import About from '../pages/Public/About.vue';
-import Login from '../pages/Public/Login.vue';
-import Register from '../pages/Public/Register.vue';
+import { clientRoutes } from '../variables/variables.js';
 
+// Applications client-side route definitions
 const routes = [
-    { path: "/", component: Home },
-    { path: "/contact", component: Contact },
-    { path: "/about", component: About },
-    { path: "/login", component: Login },
-    { path: "/register", component: Register },
+    { path: clientRoutes.home, component: Home },
+    { path: clientRoutes.contact, component: Contact },
+    { path: clientRoutes.about, component: About },
     { path: "*", redirect: "/" }
 ];
 

@@ -15,6 +15,7 @@
     </b-nav-item>
 </template>
 <script>
+    import { clientRoutes } from '../../variables/variables.js';
     export default {
         name: "auth-nav-item",
         computed: {
@@ -22,9 +23,7 @@
                 return this.$store.getters.isAuthenticated;
             },
             fullName() {
-                return `${this.$store.state.auth.firstName} ${
-                    this.$store.state.auth.lastName
-                    }`;
+                return `${this.$store.state.auth.fullName}`;
             }
         },
         methods: {
@@ -34,7 +33,7 @@
             logout() {
                 this.$store.dispatch("logout").then(() => {
                     if (this.$route.meta.requiresAuth) {
-                        this.$router.push("/");
+                        this.$router.push(clientRoutes.home);
                     }
                 });
             }

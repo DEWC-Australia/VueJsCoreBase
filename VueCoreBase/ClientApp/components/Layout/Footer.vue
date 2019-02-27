@@ -14,6 +14,7 @@
     </b-jumbotron>
 </template>
 <script>
+    import { clientRoutes } from '../../variables/variables.js';
     export default {
         name: 'footer',
         data(){
@@ -25,11 +26,11 @@
                         links: [
                             {
                                 name:'About Us',
-                                url: '/about'
+                                url: clientRoutes.about
                             },
                             {
                                 name:'Contact Us',
-                                url: '/contact'
+                                url: clientRoutes.contact
                             }
                         ]
                     },
@@ -38,23 +39,23 @@
                         links: [
                             {
                                 name:'Terms of Use',
-                                url: '/about'
+                                url: clientRoutes.about
                             },
                             {
                                 name:'Privacy Policy',
-                                url: '/about'
+                                url: clientRoutes.about
                             },
                             {
                                 name:'Posting Policy',
-                                url: '/about'
+                                url: clientRoutes.about
                             },
                             {
                                 name:'Transport Hazard Classifications',
-                                url: '/about'
+                                url: clientRoutes.about
                             },
                             {
                                 name:'Parcel Types',
-                                url: '/about'
+                                url: clientRoutes.about
                             }
                         ]
                     },
@@ -63,15 +64,15 @@
                         links: [
                             {
                                 name:'Item 1',
-                                url: '/'
+                                url: clientRoutes.home
                             },
                             {
                                 name:'Item 2',
-                                url: '/'
+                                url: clientRoutes.home
                             },
                             {
                                 name:'Item 3',
-                                url: '/'
+                                url: clientRoutes.home
                             }
                         ]
                     }

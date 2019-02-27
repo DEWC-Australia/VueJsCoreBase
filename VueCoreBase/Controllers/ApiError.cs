@@ -13,7 +13,7 @@ namespace Controllers.Exceptions
         public ApiError(string message)
         {
             this.message = message;
-            isError = true;
+            this.isError = true;
         }
 
     }

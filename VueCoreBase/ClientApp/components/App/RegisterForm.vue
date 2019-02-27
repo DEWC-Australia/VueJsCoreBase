@@ -3,7 +3,7 @@
         <b-alert variant="danger" :show="errors !== null" dismissible
                  @dismissed="errors = null">
             <div v-for="(error, index) in errors" :key="index">
-                {{ error[0] }}
+                {{ error }}
             </div>
         </b-alert>
         <b-form-group label="First Name">
@@ -70,9 +70,10 @@
                         this.$emit("success");
                     })
                     .catch(error => {
-                        if (typeof error.data === "string" || error.data
-                            instanceof String) {
-                            this.errors = { error: [error.data] };
+                        if (typeof error.data === "object" || error.data instanceof Object) {
+                            if (error.data.isError === true) {
+                                this.errors = error.data.message.split("\r\n");
+                            }                            
                         } else {
                             this.errors = error.data;
                         }
