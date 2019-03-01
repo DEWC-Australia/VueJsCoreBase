@@ -32,10 +32,10 @@
 </script>
 <style lang="scss">
     .modal {display: block; }
-
+    .invalid-feedback {display:block;}
     /*Force html and body to the full size of the screen and div app and page classes to 100% of the body*/
     html,
-    body{
+    body {
         height: 100vh;
     }
 

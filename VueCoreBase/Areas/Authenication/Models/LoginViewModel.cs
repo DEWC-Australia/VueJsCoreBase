@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Models.ViewModels;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Areas.Authenication.Models
 {
-    public class LoginViewModel
+    public class LoginViewModel: ViewModelBase
     {
         [Required]
         public string Email { get; set; }

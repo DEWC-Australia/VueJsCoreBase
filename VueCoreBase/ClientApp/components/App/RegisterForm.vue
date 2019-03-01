@@ -1,8 +1,8 @@
 ﻿<template>
     <form @submit.prevent="submit" class="p-2">
-        <b-alert variant="danger" :show="errors !== null" dismissible
-                 @dismissed="errors = null">
-            <div v-for="(error, index) in errors" :key="index">
+        <b-alert variant="danger" :show="serverErrors !== null" dismissible
+                 @dismissed="serverErrors = null">
+            <div v-for="(error, index) in serverErrors" :key="index">
                 {{ error }}
             </div>
         </b-alert>
@@ -40,7 +40,7 @@
                 email: "",
                 password: "",
                 confirmPassword: "",
-                errors: null
+                serverErrors: null
             };
         },
         computed: {
@@ -61,7 +61,7 @@
                 this.$store
                     .dispatch("register", payload)
                     .then(response => {
-                        this.errors = null;
+                        this.serverErrors = null;
                         this.firstName = "";
                         this.lastName = "";
                         this.email = "";
@@ -72,16 +72,16 @@
                     .catch(error => {
                         if (typeof error.data === "object" || error.data instanceof Object) {
                             if (error.data.isError === true) {
-                                this.errors = error.data.message.split("\r\n");
+                                this.serverErrors = error.data.message.split("\r\n");
                             }                            
                         } else {
-                            this.errors = error.data;
+                            this.serverErrors = error.data;
                         }
                     });
             },
 
             close() {
-                this.errors = null;
+                this.serverErrors = null;
                 this.$emit("close");
             }
 

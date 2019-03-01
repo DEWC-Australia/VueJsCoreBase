@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Models.VeeValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,40 +12,38 @@ namespace Controllers.Exceptions
 {
     public class ApiException : BaseException
     {
-        public ApiException(ExceptionsTypes ErrorCode, string message) : base(ErrorCode, message)
+        private void Setup()
         {
             this.StatusCode = (int)HttpStatusCode.BadRequest;
             this.ContentType = @"application/json";
         }
-
-        public ApiException(ExceptionsTypes ErrorCode, string message, HttpStatusCode statusCode) : base(ErrorCode, message)
+        public ApiException(ExceptionsTypes ErrorCode, string message, Dictionary<string,ClassProperty> validations = null) : base(ErrorCode, message)
         {
-            this.StatusCode = (int)statusCode;
-            this.ContentType = @"application/json";
+            Setup();
+            this.Errors = new List<string> { message };
+            this.Validations = validations;
         }
 
-        public ApiException(ExceptionsTypes ErrorCode, IEnumerable<IdentityError> errors) : base(ErrorCode, IdentityErrorToString(errors))
+        public ApiException(ExceptionsTypes ErrorCode, string message, HttpStatusCode statusCode, Dictionary<string, ClassProperty> validations = null) : base(ErrorCode, message)
         {
-            this.StatusCode = (int)HttpStatusCode.BadRequest;
-            this.ContentType = @"application/json";
+            Setup();
+            this.Errors = new List<string> { message };
+            this.Validations = validations;
         }
 
-        public static string IdentityErrorToString(IEnumerable<IdentityError> errors)
+        public ApiException(ExceptionsTypes ErrorCode, IEnumerable<IdentityError> errors, Dictionary<string, ClassProperty> validations = null) : base(ErrorCode, "Identity Error")
         {
-            StringBuilder message = new StringBuilder();
-            foreach(var error in errors.ToList())
-            {
-                message.AppendLine(String.Format("Error: {0} - {1}", error.Code, error.Description));
-            }
-
-            return message.ToString();
-
+            Setup();
+            this.Errors = errors.Select(a => $"Error: {a.Code} - {a.Description}").ToList();
+            this.Validations = validations;
         }
 
-        public ApiException(ExceptionsTypes ErrorCode, Exception ex) : base(ErrorCode, ExceptionErrorToString(ex))
+
+        public ApiException(ExceptionsTypes ErrorCode, Exception ex, Dictionary<string, ClassProperty> validations = null) : base(ErrorCode, ExceptionErrorToString(ex))
         {
-            this.StatusCode = (int)HttpStatusCode.BadRequest;
-            this.ContentType = @"application/json";
+            Setup();
+            this.Errors = new List<string> { ExceptionErrorToString(ex) };
+            this.Validations = validations;
         }
 
         public static string ExceptionErrorToString(Exception ex)
@@ -57,26 +56,23 @@ namespace Controllers.Exceptions
             return ex.Message;
         }
 
-        public ApiException(ExceptionsTypes ErrorCode, ModelStateDictionary modelState) : base(ErrorCode, ModelStateDictionaryToString(modelState))
+        public ApiException(ExceptionsTypes ErrorCode, ModelStateDictionary modelState, Dictionary<string, ClassProperty> validations = null) : base(ErrorCode, "Model State Invalid")
         {
-            this.StatusCode = (int)HttpStatusCode.BadRequest;
-            this.ContentType = @"application/json";
+            Setup();
+            this.Errors = ModelStateDictionaryToString(modelState);
+            this.Validations = validations;
         }
 
-        public static string ModelStateDictionaryToString(ModelStateDictionary modelState)
+        public static List<string> ModelStateDictionaryToString(ModelStateDictionary modelState)
         {
-            StringBuilder message = new StringBuilder();
+            var output = new List<string>();
+           
             foreach (var error in modelState.ToList())
             {
-                StringBuilder errors = new StringBuilder();
-                foreach(var keyError in error.Value.Errors.ToList())
-                {
-                    message.AppendLine(String.Format("Error: {0} - {1}", error.Key, keyError.ErrorMessage));
-                }
-                
+                output.AddRange(error.Value.Errors.Select(a => $"Error: {error.Key} - {a.ErrorMessage}").ToList());   
             }
-           
-            return message.ToString();
+
+            return output;
         }
     }
 }

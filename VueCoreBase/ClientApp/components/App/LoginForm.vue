@@ -1,19 +1,15 @@
 ﻿<template>
-    <form @submit.prevent="login" class="p-2">
-        <b-alert variant="danger" :show="error !== null" dismissible
-                 @dismissed="error = null">
-            {{ error }}
-        </b-alert>
-        <b-alert variant="success" :show="registered && error === null">
-            Registration successful. Please login to continue.
-        </b-alert>
+    <form @submit.prevent="loginSubmit" class="p-2">
+
+        <vee-form-server-errors :formServerErrors="serverErr"></vee-form-server-errors>
+
+        <vee-form-success :message="successMessage" :registered="registered" :formServerErrors="serverErr"></vee-form-success>
+
         <p>Login with your e-mail address and password.</p>
-        <b-form-group label="E-mail">
-            <b-form-input v-model.trim="email" />
-        </b-form-group>
-        <b-form-group label="Password">
-            <b-form-input v-model.trim="password" type="password" />
-        </b-form-group>
+
+        <vee-form-input :formInput="login"></vee-form-input>
+        <vee-form-input :formInput="password"></vee-form-input>
+
         <b-form-group>
             <b-button variant="primary" type="submit"
                       :disabled="loading">Login</b-button>
@@ -23,9 +19,17 @@
     </form>
 </template>
 <script>
-    import axios from "axios";
+    import VeeFormSuccess from '../FormControls/VeeFormSuccess.vue';
+    import VeeFormServerErrors from '../FormControls/VeeFormServerErrors.vue';
+    import VeeFormInput from '../FormControls/VeeFormInput.vue';
+    import { formObject, processResponseErrors, processProperties } from "../../mixins/veeForms.js";
     export default {
         name: "login-form",
+        components: {
+            VeeFormSuccess,
+            VeeFormServerErrors,
+            VeeFormInput
+        },
         props: {
             registered: {
                 type: Boolean,
@@ -34,9 +38,10 @@
         },
         data() {
             return {
-                email: "",
-                password: "",
-                error: null
+                password: formObject('Password', null, 'password'),
+                login: formObject('Email'),
+                successMessage : 'Registration successful. Please login to continue.',
+                serverErr: []
             };
         },
         computed: {
@@ -45,32 +50,42 @@
             }
         },
         methods: {
-            login() {
-                const payload = {
-                    email: this.email,
-                    password: this.password
-                };
+            loginSubmit() {
 
+                this.$validator.validateAll().then(
+                    result => {
+                        if (result) {
+                            const payload = {
+                                email: this.login.value,
+                                password: this.password.value
+                            };
 
-                this.$store
-                    .dispatch("login", payload)
-                    .then(response => {
-                        this.error = null;
-                        this.email = "";
-                        this.password = "";
-                        if (this.$route.query.redirect) {
-                            this.$router.push(this.$route.query.redirect);
+                            this.$store
+                                .dispatch("login", payload)
+                                .then(response => {
+                                    this.serverErr = null;
+                                    this.email = "";
+                                    this.password = "";
+                                    if (this.$route.query.redirect) {
+                                        this.$router.push(this.$route.query.redirect);
+                                    }
+                                })
+                                .catch(serverError => {
+
+                                    this.serverErr = processResponseErrors(serverError.data.errors);
+
+                                    processProperties(serverError.data.properties,
+                                        this._data, false, false);
+  
+                                });//end of catch
                         }
-                    })
-                    .catch(error => {
-                        this.error = error.data;
-                    });
+                    }
+                );
                     
             },
             close() {
                 this.$emit("close");
             }
-
         }
 
     }

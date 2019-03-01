@@ -15,14 +15,16 @@ namespace Controllers.Exceptions
     {
         [Description("Authorisation")]
         Authorisation,
+        [Description("Login Error")]
+        LoginError,
+
         [Description("No Query Validation")]
         DatabaseQuery,
         [Description("Area Model Factory")]
         AreaModelFactory,
         [Description("Database Read Error")]
         DatabaseRead,
-        [Description("Login Error")]
-        LoginError,
+        
         [Description("Registration Error")]
         RegistrationError,
         [Description("User Action Error")]

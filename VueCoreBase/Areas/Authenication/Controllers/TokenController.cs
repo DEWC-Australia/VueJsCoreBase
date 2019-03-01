@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VueCoreBase.Controllers;
 using Microsoft.EntityFrameworkCore;
+using Controllers.Exceptions;
 
 namespace Areas.Authenication.Controllers
 {
@@ -38,43 +39,59 @@ namespace Areas.Authenication.Controllers
         {
 
             if (!ModelState.IsValid)
-                return BadRequest(AuthenicationConstants.BadRequestMessages.InvalidCredentials);
+            {
+                if (model == null)
+                    model = new LoginViewModel();
+
+                throw new ApiException(ExceptionsTypes.LoginError, ModelState, model.Validations);
+            }
+                
+
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
             if (user == null)
-                return BadRequest(AuthenicationConstants.BadRequestMessages.InvalidCredentials);
+                throw new ApiException(ExceptionsTypes.LoginError, AuthenicationConstants.BadRequestMessages.InvalidCredentials, model.Validations);
 
             if (await _userManager.IsLockedOutAsync(user))
-                return BadRequest(AuthenicationConstants.BadRequestMessages.LockedOut);
+                throw new ApiException(ExceptionsTypes.LoginError, AuthenicationConstants.BadRequestMessages.LockedOut, model.Validations);
 
-            var result = await _signInManager.PasswordSignInAsync(user, model.Password, true, true);
+            try
+            {
+                var result = await _signInManager.PasswordSignInAsync(user, model.Password, true, true);
+                if (!result.Succeeded)
+                    throw new ApiException(ExceptionsTypes.LoginError, AuthenicationConstants.BadRequestMessages.InvalidCredentials, model.Validations);
 
-            if (!result.Succeeded)
-                return BadRequest(AuthenicationConstants.BadRequestMessages.InvalidCredentials);
-
-            var rt = await mDb.UserTokens.SingleOrDefaultAsync(a =>
+                var rt = await mDb.UserTokens.SingleOrDefaultAsync(a =>
                                                 a.LoginProvider == AuthenicationConstants.LoginProvider &&
                                                 a.Name == AuthenicationConstants.TokenName &&
                                                 a.UserId == user.Id
                                                 );
 
-            if(rt == null)
-            {
-                rt = CreateRefreshToken(user.Id);
-                mDb.UserTokens.Add(rt);
+                if (rt == null)
+                {
+                    rt = CreateRefreshToken(user.Id);
+                    mDb.UserTokens.Add(rt);
+                }
+                else
+                {
+                    rt.Value = NewRefreshTokenValue;
+                }
+
+                // persist changes in the DB
+                await mDb.SaveChangesAsync();
+
+                var token = await GenerateToken(user, rt.Value);
+
+                return Ok(token);
+
             }
-            else
+            catch(Exception ex)
             {
-                rt.Value = NewRefreshTokenValue;
+                throw new ApiException(ExceptionsTypes.LoginError, ex, model.Validations);
             }
-
-            // persist changes in the DB
-            await mDb.SaveChangesAsync();
-
-            var token = await GenerateToken(user, rt.Value);
-
-            return Ok(token);
+               
+            
         }
 
         [HttpPost("refresh")]

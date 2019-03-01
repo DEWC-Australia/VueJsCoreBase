@@ -1,3 +1,9 @@
 .vs/
 VueCoreBase/Services/EmailSender.cs
 VueCoreBase/emails.txt
+VueCoreBaseTest/obj/Debug/
+VueCoreBaseTest/bin/
+VueCoreBaseTest/obj/
+Displaying Errors _ VeeValidate.pdf
+Syntax _ VeeValidate.pdf
+Validation Rules _ VeeValidate.pdf

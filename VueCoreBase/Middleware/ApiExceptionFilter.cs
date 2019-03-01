@@ -35,19 +35,23 @@ namespace Middleware.Exception
         {
             
             ApiError apiError = null;
+
             if (context.Exception is ApiException)
             {
+                var apiEx = (ApiException)context.Exception;
+                apiError = new ApiError(apiEx);
+
                 var ex = context.Exception as ApiException;
-                context.Exception = null;
-                apiError = new ApiError(ex.Message);
+
                 context.HttpContext.Response.StatusCode = ex.StatusCode;
+
+                context.Exception = null;
             }
             else if (context.Exception is UnauthorizedAccessException)
             {
                 apiError = new ApiError("Unauthorized Access");
                 context.HttpContext.Response.StatusCode = 401;
-                //
-                // handle logging here
+
             }
             else
             {

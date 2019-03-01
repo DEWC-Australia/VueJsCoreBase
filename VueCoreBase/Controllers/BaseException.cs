@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Models.VeeValidation;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -9,10 +10,16 @@ namespace Controllers.Exceptions
 {
     public class BaseException : Exception
     {
+        public List<string> Errors { get; set; }
+        public Dictionary<string, ClassProperty> Validations { get; set; }
         public int StatusCode { get; set; }
         public string ContentType { get; set; } = @"text/plain";
         public BaseException(ExceptionsTypes ErrorCode, string Message): base(String.Format("{0} ({1})", Message, GetDescription(ErrorCode)))
-        { }
+        {
+
+        }
+
+       
 
         public static string GetDescription(object enumValue)
         {
