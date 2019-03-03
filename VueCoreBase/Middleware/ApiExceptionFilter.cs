@@ -36,9 +36,8 @@ namespace Middleware.Exception
             
             ApiError apiError = null;
 
-            if (context.Exception is ApiException)
+            if (context.Exception is ApiException apiEx)
             {
-                var apiEx = (ApiException)context.Exception;
                 apiError = new ApiError(apiEx);
 
                 var ex = context.Exception as ApiException;
@@ -64,7 +63,7 @@ namespace Middleware.Exception
                 apiError.detail = stack;
                 context.HttpContext.Response.StatusCode = 500;
                 */
-               
+
             }
             // always return a JSON result
             context.Result = new JsonResult(apiError);

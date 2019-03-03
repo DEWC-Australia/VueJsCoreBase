@@ -1,4 +1,5 @@
-﻿using Model.VeeValidation.Builders;
+﻿using Extensions.CamelCase;
+using Model.VeeValidation.Builders;
 using Models.VeeValidation;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,9 @@ namespace Models.ViewModels
 
         public Dictionary<string, ClassProperty> Validations { get
             {
-                return new Dictionary<string, ClassProperty>
+                return BuildValidations();
+                /*
+                    new Dictionary<string, ClassProperty>
                 {
                     {
                         "login",
@@ -38,8 +41,8 @@ namespace Models.ViewModels
 
                         }
                     }
-
                 };
+            */
             }
         }
 
@@ -51,23 +54,42 @@ namespace Models.ViewModels
            
             var props = type.GetProperties();
 
-            foreach(var prop in props.ToList())
+            foreach(var prop in props.Where(a => a.Name != "Validations").ToList())
             {
                 var propValidations = new Dictionary<string, dynamic>();
+                var propDisplayName = prop.Name;
 
-                foreach(var attr in prop.CustomAttributes)
+                foreach (var attr in prop.CustomAttributes.ToList())
                 {
-                    var validation = ValidationBuilderFactory.GetBuilder(attr, prop.Name);
-                    if (validation == null)
+                    var testDisplayAttr = attr.AttributeType.Name.Equals("DisplayAttribute");
+                    var hasName = attr.NamedArguments.Any(a => a.MemberName == "Name");
+
+                    if (testDisplayAttr && hasName)
+                    {
+                        propDisplayName = attr.NamedArguments.SingleOrDefault(a => a.MemberName == "Name").TypedValue.Value.ToString();
+                            continue;
+                    }else if (testDisplayAttr)              
+                        continue;
+                    
+
+                    var validations = ValidationBuilderFactory.GetBuilder(attr, prop.Name);
+
+                    if (validations == null)
                         continue;
 
-                    validation.propertyValidation
-                        .Select(a => propValidations.Add(a.Key,a.Value));
-                    
+                    foreach(var val in validations)
+                    {
+                        if (propValidations.ContainsKey(val.Key))
+                            continue;
+
+                        propValidations.Add(val.Key, val.Value);
+                    }
+
+                   
                 }
 
-                retVal.Add(prop.Name.ToLowerInvariant(), new ClassProperty {
-                    displayName = prop.Name,
+                retVal.Add(prop.Name.ToCamelCase(), new ClassProperty {
+                    displayName = propDisplayName,
                     value = null,
                     validations = propValidations
                 });
@@ -77,5 +99,6 @@ namespace Models.ViewModels
             return retVal;
 
         }
+
     }
 }

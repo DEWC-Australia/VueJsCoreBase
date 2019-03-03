@@ -15,12 +15,14 @@ namespace Areas.Account.Controllers
     public class AccountController : ApiController
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signinManager;
         private readonly IEmailSender _emailSender;
 
-        public AccountController(UserManager<ApplicationUser> userManager, IEmailSender emailSender)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager ,IEmailSender emailSender)
         {
             _userManager = userManager;
             _emailSender = emailSender;
+            _signinManager = signInManager;
         }
 
         /// <summary>
@@ -80,7 +82,7 @@ namespace Areas.Account.Controllers
             {
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                var callbackUrl = Url.EmailConfirmationLink(user.Id.ToString(), code, Request.Scheme);
+                var callbackUrl = Url.EmailConfirmationLink(user.Id.ToString(), code, Request.Scheme, Request.Host.Value);
 
                 await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl, user.UserName);
             }
@@ -105,17 +107,36 @@ namespace Areas.Account.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string id, string code)
         {
+            var controller = "Home";
+
             if (id == null || code == null)
-                return RedirectToAction(nameof(HomeController.Index), "Home");
-            
+                return RedirectToAction(nameof(HomeController.Index), controller);
 
-            var user = await _userManager.FindByIdAsync(id);
+            string action = nameof(HomeController.Error);
 
-            if (user == null)
-                throw new ApiException(ExceptionsTypes.RegistrationError, $"Unable to load user with ID '{id}'.");
-            
-            var result = await _userManager.ConfirmEmailAsync(user, code);
-            return RedirectToAction(result.Succeeded ? nameof(HomeController.Index) : nameof(HomeController.Error), "Home");
+            try
+            {
+                var user = await _userManager.FindByIdAsync(id);
+
+                if (user == null)
+                    throw new ApiException(ExceptionsTypes.RegistrationError, $"Unable to load user with ID '{id}'.");
+
+                var result = await _userManager.ConfirmEmailAsync(user, code);
+
+                if (!result.Succeeded)
+                    throw new ApiException(ExceptionsTypes.LoginError, result.Errors);
+
+                await _signinManager.SignInAsync(user, true);
+
+                action = nameof(HomeController.Index);
+
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.LoginError, ex);
+            }
+
+            return RedirectToAction(action, controller);
         }
 
 
@@ -141,7 +162,7 @@ namespace Areas.Account.Controllers
                 // For more information on how to enable account confirmation and password reset please
                 // visit https://go.microsoft.com/fwlink/?LinkID=532713
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var callbackUrl = Url.ResetPasswordCallbackLink(user.Id.ToString(), code, Request.Scheme);
+                var callbackUrl = Url.ResetPasswordCallbackLink(user.Id.ToString(), code, Request.Scheme, Request.Host.Value);
                 await _emailSender.SendEmailAsync(model.Email, "Reset Password",
                    $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
 
@@ -197,7 +218,7 @@ namespace Areas.Account.Controllers
             
 
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var callbackUrl = Url.EmailConfirmationLink(user.Id.ToString(), code, Request.Scheme);
+            var callbackUrl = Url.EmailConfirmationLink(user.Id.ToString(), code, Request.Scheme, Request.Host.Value);
             var email = user.Email;
             await _emailSender.SendEmailConfirmationAsync(email, callbackUrl, user.UserName);
 
