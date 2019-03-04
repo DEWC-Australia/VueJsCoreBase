@@ -1,5 +1,4 @@
 ﻿--Scaffold-DbContext -Connection "Server=(localdb)\mssqllocaldb; Database='VueCoreBase'; Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Data\ASPIdentity -Schemas dbo -Force
-USE VueCoreBase
 
 GO
 /****** Object: Table [dbo].[__EFMigrationsHistory] Script Date: 30/12/2018 12:19:44 PM ******/

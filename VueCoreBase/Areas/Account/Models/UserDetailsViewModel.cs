@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
-
+using Models.ViewModels;
 
 namespace Areas.Account.Models
 {
-    public class UserDetailsViewModel
+    public class UserDetailsViewModel : ViewModelBase
     {
 
         public string Username { get; set; }

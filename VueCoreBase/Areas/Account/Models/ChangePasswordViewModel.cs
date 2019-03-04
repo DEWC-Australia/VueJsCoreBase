@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Models.ViewModels;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace Areas.Account.Models
 {
-    public class ChangePasswordViewModel
+    public class ChangePasswordViewModel : ViewModelBase
     {
         [Required]
         [DataType(DataType.Password)]

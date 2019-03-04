@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Models.Home;
 
 namespace VueCoreBase.Controllers
 {
@@ -12,7 +13,8 @@ namespace VueCoreBase.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+
+            return View(new HomeModel());
         }
 
         public IActionResult Error()

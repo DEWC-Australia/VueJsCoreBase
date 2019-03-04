@@ -64,27 +64,20 @@ namespace VueCoreBaseTest.VeeValidation
             Assert.AreEqual(VeePropName, getProperty.Key);
             Assert.AreEqual(VeePropDisplayName, result[VeePropName].displayName);
 
-
             Assert.AreEqual(VeeKey, getRequired.Key);
             Assert.AreEqual(VeeValue, getRequired.Value);
 
         }
-
-
     }
-
     public class RequiredTestClass: ViewModelBase
     {
         [Required]
         public string TestProperty { get; set; }
     }
-
     public class RequiredDisplayNameTestClass : ViewModelBase
     {
         [Required]
         [Display(Name = "Test Property")]
         public string TestProperty { get; set; }
     }
-
-
 }

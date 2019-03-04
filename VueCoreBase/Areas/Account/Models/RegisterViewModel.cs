@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Models.ViewModels;
+using System.ComponentModel.DataAnnotations;
 
 namespace Areas.Account.Models
 {
-    public class RegisterViewModel
+    public class RegisterViewModel: ViewModelBase
     {
         [Required]
         [StringLength(250, ErrorMessage = "{0} max {1} characters long.")]

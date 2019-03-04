@@ -54,7 +54,6 @@
 
   <ItemGroup>
     <Folder Include="Attributes\" />
-    <Folder Include="ClientApp\pages\Areas\" />
     <Folder Include="ClientApp\translations\" />
     <Folder Include="wwwroot\userimages\" />
   </ItemGroup>

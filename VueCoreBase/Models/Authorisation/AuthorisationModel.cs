@@ -11,6 +11,11 @@ namespace Models.Authorisation
             return await userManager.AddToRoleAsync(user, AuthorisationConstants.Roles.Customer);
         }
 
+        public static async Task<IdentityResult> BuildUser(UserManager<ApplicationUser> userManager, ApplicationUser user)
+        {
+            return await userManager.AddToRoleAsync(user, AuthorisationConstants.Roles.User);
+        }
+
         public static async Task<IdentityResult> BuildEmployee(UserManager<ApplicationUser> userManager, ApplicationUser user)
         {
             return await userManager.AddToRoleAsync(user, AuthorisationConstants.Roles.Employee);

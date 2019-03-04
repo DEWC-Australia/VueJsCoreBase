@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Models.ViewModels;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace Areas.Account.Models
 {
-    public class SetPasswordViewModel
+    public class SetPasswordViewModel : ViewModelBase
     {
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]

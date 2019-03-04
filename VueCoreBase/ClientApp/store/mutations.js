@@ -50,3 +50,11 @@ export const registerError = state => {
 export const logout = state => {
     state.auth = null;
 };
+
+export const startLoading = state => {
+    state.loading = true;
+};
+
+export const finishLoading = state => {
+    state.loading = false;
+};

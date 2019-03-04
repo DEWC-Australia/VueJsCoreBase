@@ -17,7 +17,7 @@ export const apiRoutes = {
     account: {
         registerUrl: '/api/account/register',
         confirmEmailUrl: '/api/account/confirmEmail',
-        forgotEmailUrl: '/api/account/forgotEmail',
+        forgotEmailUrl: '/api/account/forgotPassword',
         resetPasswordUrl: '/api/account/resetPassword',
         sendVerificationEmailUrl: '/api/account/sendVerificationEmail',
         changePasswordUrl: '/api/account/changePassword',
@@ -33,6 +33,12 @@ export const httpHeaders = {
 export const clientRoutes = {
     home: '/',
     contact: '/contact',
-    about: '/about'
+    about: '/about',
+    lockout: '/lockout',
+    resetPassword: '/resetpassword/:code',
+    forgotLogin: '/forgotlogin',
+    notAuthorised: '/notauthorised',
+    setPassword: '/setpassword', // protect with admin role
+    changePassword: '/changepassword'
 };
 

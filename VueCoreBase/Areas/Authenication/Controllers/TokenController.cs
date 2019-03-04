@@ -39,28 +39,33 @@ namespace Areas.Authenication.Controllers
         {
 
             if (!ModelState.IsValid)
-            {
-                if (model == null)
-                    model = new LoginViewModel();
-
                 throw new ApiException(ExceptionsTypes.LoginError, ModelState, model.Validations);
+
+            ApplicationUser user = null;
+
+            // database error
+            try
+            {
+                user = await _userManager.FindByEmailAsync(model.Email);
             }
-                
+            catch(Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.DatabaseError, ex);
+            }
 
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            
 
             if (user == null)
-                throw new ApiException(ExceptionsTypes.LoginError, AuthenicationConstants.BadRequestMessages.InvalidCredentials, model.Validations);
+                throw new ApiException(ExceptionsTypes.LoginError, AuthenicationConstants.BadRequestMessages.InvalidCredentials);
 
             if (await _userManager.IsLockedOutAsync(user))
-                throw new ApiException(ExceptionsTypes.LoginError, AuthenicationConstants.BadRequestMessages.LockedOut, model.Validations);
+                throw new ApiException(ExceptionsTypes.LoginError, AuthenicationConstants.BadRequestMessages.LockedOut);
 
             try
             {
                 var result = await _signInManager.PasswordSignInAsync(user, model.Password, true, true);
                 if (!result.Succeeded)
-                    throw new ApiException(ExceptionsTypes.LoginError, AuthenicationConstants.BadRequestMessages.InvalidCredentials, model.Validations);
+                    throw new ApiException(ExceptionsTypes.LoginError, AuthenicationConstants.BadRequestMessages.InvalidCredentials);
 
                 var rt = await mDb.UserTokens.SingleOrDefaultAsync(a =>
                                                 a.LoginProvider == AuthenicationConstants.LoginProvider &&
@@ -88,7 +93,7 @@ namespace Areas.Authenication.Controllers
             }
             catch(Exception ex)
             {
-                throw new ApiException(ExceptionsTypes.LoginError, ex, model.Validations);
+                throw new ApiException(ExceptionsTypes.LoginError, ex);
             }
                
             

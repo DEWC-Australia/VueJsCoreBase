@@ -3,7 +3,7 @@
 
         <vee-form-server-errors :formServerErrors="serverErr"></vee-form-server-errors>
 
-        <vee-form-success :message="successMessage" :registered="registered" :formServerErrors="serverErr"></vee-form-success>
+        <vee-form-success :message="successMessage" :formSubmitted="registered" :formServerErrors="serverErr"></vee-form-success>
 
         <p>Login with your e-mail address and password.</p>
 
@@ -13,9 +13,15 @@
         <b-form-group>
             <b-button variant="primary" type="submit"
                       :disabled="loading">Login</b-button>
-            <b-button variant="default" @click="close"
+
+            <b-button variant="dark" @click="function(){$router.push({ path: forgotLogin }); $emit('close');}"
+                      :disabled="loading">Forgot Login</b-button>
+
+            <b-button variant="light" @click="$emit('close')"
                       :disabled="loading">Cancel</b-button>
         </b-form-group>
+
+
     </form>
 </template>
 <script>
@@ -23,6 +29,7 @@
     import VeeFormServerErrors from '../FormControls/VeeFormServerErrors.vue';
     import VeeFormInput from '../FormControls/VeeFormInput.vue';
     import { formObject, processResponseErrors, processProperties } from "../../mixins/veeForms.js";
+    import { clientRoutes } from '../../variables/variables.js';
     export default {
         name: "login-form",
         components: {
@@ -38,10 +45,11 @@
         },
         data() {
             return {
-                password: formObject('Password', null, 'password'),
-                login: formObject('Email'),
-                successMessage : 'Registration successful. Please login to continue.',
-                serverErr: []
+                password: formObject('Password', null, 'password', { required: true, max: 100 }),
+                login: formObject('Email', null, 'email', { required: true, email: true, max: 250 }),
+                successMessage : 'Registration successful. Please check your email to confirm your account before attempting to login.',
+                serverErr: [],
+                forgotLogin: clientRoutes.forgotLogin
             };
         },
         computed: {
@@ -63,18 +71,18 @@
                             this.$store
                                 .dispatch("login", payload)
                                 .then(response => {
-                                    this.serverErr = null;
-                                    this.email = "";
-                                    this.password = "";
+                                    this.serverErr = [];
+                                    this.login.value = "";
+                                    this.password.value = "";
                                     if (this.$route.query.redirect) {
                                         this.$router.push(this.$route.query.redirect);
                                     }
                                 })
-                                .catch(serverError => {
+                                .catch(error => {
 
-                                    this.serverErr = processResponseErrors(serverError.data.errors);
+                                    this.serverErr = processResponseErrors(error.data.errors);
 
-                                    processProperties(serverError.data.properties,
+                                    processProperties(error.data.properties,
                                         this._data, false, false);
   
                                 });//end of catch
@@ -82,10 +90,8 @@
                     }
                 );
                     
-            },
-            close() {
-                this.$emit("close");
             }
+            
         }
 
     }

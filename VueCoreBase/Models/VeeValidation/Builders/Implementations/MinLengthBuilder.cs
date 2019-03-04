@@ -5,9 +5,9 @@ using System.Reflection;
 
 namespace Models.VeeValidation.Builders.Implementations
 {
-    public class MaxLengthBuilder: ValidationBuilderBase
+    public class MinLengthBuilder: ValidationBuilderBase
     {
-        public MaxLengthBuilder(CustomAttributeData attr, string propName) : base(attr, propName)
+        public MinLengthBuilder(CustomAttributeData attr, string propName) : base(attr, propName)
         {
 
         }
@@ -17,10 +17,11 @@ namespace Models.VeeValidation.Builders.Implementations
             var number = attr.ConstructorArguments.FirstOrDefault(a => a.ArgumentType.Name == "Int32");
             if (number == null)
                 return new Dictionary<string, dynamic>();
-            
+
+
             return new Dictionary<string, dynamic>
             {
-                    { "max", number.Value }
+                    { "min", number.Value }
             };
         }
     }

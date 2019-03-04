@@ -1,6 +1,7 @@
 ﻿using Areas.Account.Models;
 using ASPIdentity.Data;
 using Controllers.Exceptions;
+using Extensions.TokenUrlEncoder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -44,10 +45,20 @@ namespace Areas.Account.Controllers
         {
 
             if (!ModelState.IsValid)
-                throw new ApiException(ExceptionsTypes.RegistrationError, ModelState);
+                throw new ApiException(ExceptionsTypes.RegistrationError, ModelState, model.Validations);
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            ApplicationUser user = null;
 
+            //some type of Database Error
+            try
+            {
+                user = await _userManager.FindByEmailAsync(model.Email);
+
+            }catch(Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.DatabaseError, ex);
+            }
+                
             if (user != null)
                 throw new ApiException(ExceptionsTypes.RegistrationError, ExceptionErrors.AccountErrors.UserExists);
 
@@ -59,16 +70,34 @@ namespace Areas.Account.Controllers
                 LastName = model.LastName
             };
 
-            var registerResult = await _userManager.CreateAsync(user, model.Password);
-            if (!registerResult.Succeeded)
-                throw new ApiException(ExceptionsTypes.RegistrationError, registerResult.Errors);
+            IdentityResult registerResult = null;
+
             try
             {
-                var resultRoles = await AuthorisationModel.BuildEmployee(_userManager, user);
-                if (!resultRoles.Succeeded)
+                registerResult = await _userManager.CreateAsync(user, model.Password);
+
+            }catch(Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.DatabaseError, ex);
+            }
+
+            if (registerResult == null || !registerResult.Succeeded)
+                throw new ApiException(ExceptionsTypes.RegistrationError, registerResult.Errors);
+
+            try
+            {
+                var resultuserRole = await AuthorisationModel.BuildUser(_userManager, user);
+                if (!resultuserRole.Succeeded)
                 {
                     await _userManager.DeleteAsync(user);
-                    throw new ApiException(ExceptionsTypes.RegistrationError, resultRoles.Errors);
+                    throw new ApiException(ExceptionsTypes.RegistrationError, resultuserRole.Errors);
+                }
+
+                var resultEmployeeRole = await AuthorisationModel.BuildEmployee(_userManager, user);
+                if (!resultEmployeeRole.Succeeded)
+                {
+                    await _userManager.DeleteAsync(user);
+                    throw new ApiException(ExceptionsTypes.RegistrationError, resultEmployeeRole.Errors);
                 }
             }
             catch (Exception ex)
@@ -82,13 +111,13 @@ namespace Areas.Account.Controllers
             {
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                var callbackUrl = Url.EmailConfirmationLink(user.Id.ToString(), code, Request.Scheme, Request.Host.Value);
+                var callbackUrl = Url.EmailConfirmationLink(user.Id.ToString(), code.TokenEncode(), Request.Scheme, Request.Host.Value);
 
                 await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl, user.UserName);
             }
             catch (Exception ex)
             {
-                throw new ApiException(ExceptionsTypes.RegistrationError, ex);
+                throw new ApiException(ExceptionsTypes.EmailError, ex);
             }
 
 
@@ -150,27 +179,43 @@ namespace Areas.Account.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                throw new ApiException(ExceptionsTypes.ForgotPassword, ModelState, model.Validations);
+
+            ApplicationUser user = null;
+
+            try
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
+                user = await _userManager.FindByEmailAsync(model.Email);
 
-                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
-                    // Don't reveal that the user does not exist or is not confirmed
-                    return RedirectToAction(nameof(HomeController.Index), "Home");
-                
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.DatabaseError, ex);
+            }
 
+           
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                // Don't reveal that the user does not exist or is not confirmed
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+
+            try
+            {
                 // For more information on how to enable account confirmation and password reset please
                 // visit https://go.microsoft.com/fwlink/?LinkID=532713
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var callbackUrl = Url.ResetPasswordCallbackLink(user.Id.ToString(), code, Request.Scheme, Request.Host.Value);
+
+                var callbackUrl = Url.ResetPasswordCallbackLink(user.Id.ToString(), code.TokenEncode(), Request.Scheme, Request.Host.Value);
+
                 await _emailSender.SendEmailAsync(model.Email, "Reset Password",
-                   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
-
-                return Ok();
+                       $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+            }catch(Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.EmailError, ex);
             }
-
-            // If we got this far, something failed, redisplay form
-            return BadRequest(ModelState);
+            
+            return Ok();
+            
         }
 
         /// <summary>
@@ -184,16 +229,37 @@ namespace Areas.Account.Controllers
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordViewModel model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                throw new ApiException(ExceptionsTypes.ForgotPassword, ModelState, model.Validations);
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            ApplicationUser user = null;
+
+            try
+            {
+                user = await _userManager.FindByEmailAsync(model.Email);
+            }
+            catch(Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.DatabaseError, ex);
+            }
+
+
             if (user == null)
                 // Don't reveal that the user does not exist
                 return RedirectToAction(nameof(HomeController.Index), "Home");
 
-            var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
-            if (result.Succeeded)
-                return Ok();
+
+            try
+            {
+                var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
+
+                if (result.Succeeded)
+                    return Ok();
+
+            }catch(Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.DatabaseError, ex);
+            }
+            
 
             // Don't reveal error
             return RedirectToAction(nameof(HomeController.Index), "Home");
@@ -210,18 +276,39 @@ namespace Areas.Account.Controllers
         public async Task<IActionResult> SendVerificationEmail([FromBody] Guid id)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                throw new ApiException(ExceptionsTypes.ForgotPassword, ModelState);
 
-            var user = await _userManager.FindByIdAsync(id.ToString());
+
+            ApplicationUser user = null;
+
+            try
+            {
+                user = await _userManager.FindByIdAsync(id.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.DatabaseError, ex);
+            }
+
+
             if (user == null)
                 throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            
 
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var callbackUrl = Url.EmailConfirmationLink(user.Id.ToString(), code, Request.Scheme, Request.Host.Value);
-            var email = user.Email;
-            await _emailSender.SendEmailConfirmationAsync(email, callbackUrl, user.UserName);
+            try
+            {
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var callbackUrl = Url.EmailConfirmationLink(user.Id.ToString(), code.TokenEncode(), Request.Scheme, Request.Host.Value);
 
+                var email = user.Email;
+
+                await _emailSender.SendEmailConfirmationAsync(email, callbackUrl, user.UserName);
+            }
+            catch(Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.EmailError, ex);
+            }
+
+           
             // handle in the client
             return Ok();
         }
@@ -232,16 +319,34 @@ namespace Areas.Account.Controllers
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordViewModel model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                throw new ApiException(ExceptionsTypes.ChangePassword, ModelState, model.Validations);
 
-            var user = await _userManager.GetUserAsync(User);
+            ApplicationUser user = null;
+
+            try
+            {
+                user = await _userManager.GetUserAsync(User);
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.DatabaseError, ex);
+            }
+
             if (user == null)
-                throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            
+                throw new ApiException(ExceptionsTypes.ChangePassword, $"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
 
-            var changePasswordResult = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+            IdentityResult changePasswordResult = null;
+            try
+            {
+                changePasswordResult = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+            }catch(Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.DatabaseError, ex);
+            }
+
+
             if (!changePasswordResult.Succeeded)
-                return BadRequest(changePasswordResult.Errors);
+                throw new ApiException(ExceptionsTypes.ChangePassword, changePasswordResult.Errors);
            
 
             return Ok("Your password has been changed.");
@@ -252,19 +357,39 @@ namespace Areas.Account.Controllers
         public async Task<IActionResult> SetPassword([FromBody] SetPasswordViewModel model)
         {
             if (!ModelState.IsValid)
+                throw new ApiException(ExceptionsTypes.SetPassword, ModelState, model.Validations);
+
+            ApplicationUser user = null;
+
+            try
             {
-                return View(model);
+                user = await _userManager.GetUserAsync(User);
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.DatabaseError, ex);
             }
 
-            var user = await _userManager.GetUserAsync(User);
+
             if (user == null)
             {
-                throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                throw new ApiException(ExceptionsTypes.SetPassword, $"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var addPasswordResult = await _userManager.AddPasswordAsync(user, model.NewPassword);
+            IdentityResult addPasswordResult = null;
+
+            try
+            {
+                addPasswordResult = await _userManager.AddPasswordAsync(user, model.NewPassword);
+
+            }catch(Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.DatabaseError, ex);
+            }
+
+            
             if (!addPasswordResult.Succeeded)
-                return BadRequest(addPasswordResult.Errors);
+                throw new ApiException(ExceptionsTypes.SetPassword, addPasswordResult.Errors);
 
             return Ok("Your password has been set.");
         }
@@ -274,29 +399,58 @@ namespace Areas.Account.Controllers
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UserDetailsViewModel model)
         {
             if (!ModelState.IsValid)
+                throw new ApiException(ExceptionsTypes.ForgotPassword, ModelState, model.Validations);
+
+
+            ApplicationUser user = null;
+
+            try
             {
-                return View(model);
+                user = await _userManager.FindByIdAsync(id.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ExceptionsTypes.DatabaseError, ex);
             }
 
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            
             if (user == null)
-                throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                throw new ApiException(ExceptionsTypes.UserAccountError, $"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
 
             var email = user.Email;
 
             if (model.Email != email)
             {
-                var setEmailResult = await _userManager.SetEmailAsync(user, model.Email);
+                IdentityResult setEmailResult = null;
+                try
+                {
+                    setEmailResult = await _userManager.SetEmailAsync(user, model.Email);
+
+                }catch(Exception ex)
+                {
+                    throw new ApiException(ExceptionsTypes.DatabaseError, ex);
+                }
+                
+
                 if (!setEmailResult.Succeeded)
-                    throw new ApplicationException($"Unexpected error occurred setting email for user with ID '{user.Id}'.");
+                    throw new ApiException(ExceptionsTypes.UserAccountError, setEmailResult.Errors);
             }
 
             var phoneNumber = user.PhoneNumber;
             if (model.PhoneNumber != phoneNumber)
             {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
+                IdentityResult setPhoneResult = null;
+                try
+                {
+                    setPhoneResult = await _userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
+
+                }catch(Exception ex)
+                {
+                    throw new ApiException(ExceptionsTypes.DatabaseError, ex);
+                }
+                
                 if (!setPhoneResult.Succeeded)
-                    throw new ApplicationException($"Unexpected error occurred setting phone number for user with ID '{user.Id}'.");
+                    throw new ApiException(ExceptionsTypes.UserAccountError, setPhoneResult.Errors);
             }
 
             return Ok("Your profile has been updated");

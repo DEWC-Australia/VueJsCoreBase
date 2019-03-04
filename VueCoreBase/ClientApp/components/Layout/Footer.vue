@@ -11,6 +11,11 @@
             </b-col>
             <b-col></b-col>
         </b-row>
+        <b-row>
+            <div class="offset-sm-10 col-sm-2 copyright_area">
+               Designed by <a href="https://colorlib.com">Colorlib.</a>
+            </div>
+        </b-row>
     </b-jumbotron>
 </template>
 <script>
@@ -46,15 +51,15 @@
                                 url: clientRoutes.about
                             },
                             {
-                                name:'Posting Policy',
+                                name:'Privacy Policy',
                                 url: clientRoutes.about
                             },
                             {
-                                name:'Transport Hazard Classifications',
+                                name:'Privacy Policy',
                                 url: clientRoutes.about
                             },
                             {
-                                name:'Parcel Types',
+                                name:'Privacy Policy',
                                 url: clientRoutes.about
                             }
                         ]
@@ -81,3 +86,21 @@
         }
     }
 </script>
+<style scoped>
+.copyright_area {
+        font: 400 14px/100px "Roboto", sans-serif;
+        color: #fefefe;
+        text-align: center;
+    }
+
+.copyright_area a {
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            color: #f6b60b;
+        }
+
+.copyright_area a:hover, .footer_area .copyright_area a:focus {
+                color: #fefefe;
+            }
+</style>
