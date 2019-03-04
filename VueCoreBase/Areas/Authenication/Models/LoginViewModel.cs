@@ -1,4 +1,4 @@
-﻿using Models.ViewModels;
+﻿using Models.Base;
 using System;
 using System.ComponentModel.DataAnnotations;
 

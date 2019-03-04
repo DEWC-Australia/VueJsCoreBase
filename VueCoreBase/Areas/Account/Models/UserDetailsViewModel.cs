@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Models.ViewModels;
+using Models.Base;
 
 namespace Areas.Account.Models
 {

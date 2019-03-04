@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace VueCoreBase.Data.VueCoreBase
+namespace Data.VueCoreBase
 {
     public partial class Logging
     {

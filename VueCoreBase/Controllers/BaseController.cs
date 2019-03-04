@@ -1,14 +1,8 @@
-﻿using ASPIdentity.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using VueCoreBase.Data.VueCoreBase;
 
-namespace VueCoreBase.Controllers
+
+namespace Controllers.Base
 {
 
     public abstract class BaseController : Controller

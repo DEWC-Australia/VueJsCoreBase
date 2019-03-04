@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Controllers.Exceptions
 {
@@ -17,7 +15,7 @@ namespace Controllers.Exceptions
             this.StatusCode = (int)HttpStatusCode.BadRequest;
             this.ContentType = @"application/json";
         }
-        public ApiException(ExceptionsTypes ErrorCode, string message, Dictionary<string,ClassProperty> validations = null) : base(ErrorCode, message)
+        public ApiException(ExceptionsTypes ErrorCode, string message, Dictionary<string, ClassProperty> validations = null) : base(ErrorCode, message)
         {
             Setup();
             this.Errors = new List<string> { message };

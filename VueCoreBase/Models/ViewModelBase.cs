@@ -4,7 +4,7 @@ using Models.VeeValidation;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Models.ViewModels
+namespace Models.Base
 {
     public abstract class ViewModelBase
     {

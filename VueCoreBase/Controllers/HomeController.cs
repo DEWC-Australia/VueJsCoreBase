@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Models.Home;
 
-namespace VueCoreBase.Controllers
+namespace Controllers.Home
 {
     public class HomeController : Controller
     {

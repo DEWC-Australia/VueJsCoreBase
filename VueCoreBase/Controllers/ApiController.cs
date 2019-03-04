@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ASPIdentity.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using VueCoreBase.Data.VueCoreBase;
+﻿using Microsoft.AspNetCore.Mvc;
 
-namespace VueCoreBase.Controllers
+
+namespace Controllers.Base
 {
     [Route("api/[controller]")]
-    public abstract class ApiController : BaseController
+    public abstract class ApiBaseController : BaseController
     {
-        public ApiController() : base()
+        public ApiBaseController() : base()
         {
         }
     }

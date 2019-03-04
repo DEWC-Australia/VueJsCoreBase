@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Models.ViewModels;
+using Models.Base;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 

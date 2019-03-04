@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ASPIdentity.Data;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using VueCoreBase.Data.VueCoreBase;
+﻿using Microsoft.AspNetCore.Authorization;
+using Data.VueCoreBase;
 
-namespace VueCoreBase.Controllers
+namespace Controllers.Base
 {
     [Authorize]
-    public abstract class ApiAuthController : ApiController
+    public abstract class ApiAuthBaseController : ApiBaseController
     {
         protected VueCoreBaseContext _appDb { get; private set; }
-        public ApiAuthController(VueCoreBaseContext appContext) : base()
+        public ApiAuthBaseController(VueCoreBaseContext appContext) : base()
         {
             _appDb = appContext;
         }

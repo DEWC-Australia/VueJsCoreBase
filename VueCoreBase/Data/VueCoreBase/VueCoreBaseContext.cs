@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace VueCoreBase.Data.VueCoreBase
+namespace Data.VueCoreBase
 {
     public partial class VueCoreBaseContext : DbContext
     {
