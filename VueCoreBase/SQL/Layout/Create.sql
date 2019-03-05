@@ -8,3 +8,6 @@ GO
 
 CREATE SCHEMA VueCoreBase;
 GO
+
+CREATE SCHEMA DatabaseLogger;
+GO

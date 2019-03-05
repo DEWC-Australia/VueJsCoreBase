@@ -15,14 +15,18 @@ using Microsoft.IdentityModel.Tokens;
 using Middleware.Exception;
 using Services.Email;
 using Data.VueCoreBase;
+using Microsoft.Extensions.Logging;
 
 namespace VueCoreBase
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly ILogger _logger;
+
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
         {
             Configuration = configuration;
+            _logger = logger;
         }
 
         public IConfiguration Configuration { get; }
@@ -41,6 +45,7 @@ namespace VueCoreBase
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
+            _logger.LogWarning("Added Email sender to services");
 
             services.AddDbContext<ASPIdentityContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));

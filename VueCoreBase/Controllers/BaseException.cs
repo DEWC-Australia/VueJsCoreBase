@@ -14,9 +14,10 @@ namespace Controllers.Exceptions
         public Dictionary<string, ClassProperty> Validations { get; set; }
         public int StatusCode { get; set; }
         public string ContentType { get; set; } = @"text/plain";
+        public ExceptionsTypes ExceptionType { get; set; }
         public BaseException(ExceptionsTypes ErrorCode, string Message): base(String.Format("{0} ({1})", Message, GetDescription(ErrorCode)))
         {
-
+            ExceptionType = ErrorCode;
         }
 
        

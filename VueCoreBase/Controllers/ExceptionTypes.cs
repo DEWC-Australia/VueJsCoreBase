@@ -13,6 +13,8 @@ namespace Controllers.Exceptions
 {
     public enum ExceptionsTypes
     {
+        [Description("User Input Error")]
+        UserInputError,
         [Description("Authorisation")]
         Authorisation,
         [Description("Login Error")]

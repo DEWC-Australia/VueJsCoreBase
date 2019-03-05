@@ -22,13 +22,15 @@ namespace Areas.Account.Models
         private readonly UserManager<ApplicationUser> _userManager;
         public AccountModel(UserManager<ApplicationUser> userManager) : base()
         {
+            _userManager = userManager;
         }
 
-        public async Task<string> Register(SignInManager<ApplicationUser> _signInManager, IEmailSender _emailSender, 
+        public async Task<string> Register(IEmailSender _emailSender, 
             RegisterViewModel viewModel, ModelStateDictionary modelState, string scheme, string host)
         {
             this.ValidateModelState(modelState, viewModel);
 
+            var responseMsg = $"{AccountConstants.RegisterResponseMsgStart}{viewModel.Email}{AccountConstants.RegisterResponseMsgEnd}";
 
             ApplicationUser user = null;
 
@@ -106,31 +108,26 @@ namespace Areas.Account.Models
             }
 
 
-            return $"New User({ viewModel.Email}) successfully created.";
+            return responseMsg;
         }
 
         public async Task<Dictionary<string, string>> ConfirmEmailAsync(SignInManager<ApplicationUser> _signinManager, string id, string code)
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
 
-            var controller = "Home";
+            // always redirect to home
+            result.Add("controller", "Home");
+            result.Add("action", nameof(HomeController.Index));
 
             if (id == null || code == null)
-            {
-                result.Add("controller", controller);
-                result.Add("action", nameof(HomeController.Index));
                 return result;
-
-            }
-                
-            string action = nameof(HomeController.Error);
 
             try
             {
                 var user = await _userManager.FindByIdAsync(id);
 
                 if (user == null)
-                    throw new ApiException(ExceptionsTypes.RegistrationError, $"Unable to load user with ID '{id}'.");
+                    return result;
 
                 var confirmEmailResult = await _userManager.ConfirmEmailAsync(user, code);
 
@@ -139,16 +136,12 @@ namespace Areas.Account.Models
 
                 await _signinManager.SignInAsync(user, true);
 
-                action = nameof(HomeController.Index);
-
             }
             catch (Exception ex)
             {
                 throw new ApiException(ExceptionsTypes.LoginError, ex);
             }
 
-            result.Add("controller", controller);
-            result.Add("action", action);
             return result;
 
         }
@@ -156,7 +149,7 @@ namespace Areas.Account.Models
         public async Task<string> ForgotPassword(IEmailSender _emailSender, ForgotPasswordViewModel viewModel, ModelStateDictionary modelState,
             string scheme, string host)
         {
-            var responseMsg = "Password reset email sent. Please follow the instruction to reset your password.";
+            var responseMsg = AccountConstants.ForgotPasswordMsg;
 
             this.ValidateModelState(modelState, viewModel);
 
@@ -198,7 +191,7 @@ namespace Areas.Account.Models
 
         public async Task<string> ResetPassword(ResetPasswordViewModel viewModel, ModelStateDictionary modelState)
         {
-            var responseMsg = "Password successful reset.";
+            var responseMsg = AccountConstants.ResetPasswordMsg;
 
             this.ValidateModelState(modelState, viewModel);
 
@@ -221,6 +214,7 @@ namespace Areas.Account.Models
             {
                 var result = await _userManager.ResetPasswordAsync(user, viewModel.Code, viewModel.Password);
 
+                // return because password reset is successful
                 if (result.Succeeded)
                     return responseMsg;
             }
@@ -236,7 +230,7 @@ namespace Areas.Account.Models
 
         public async Task<string> SendVerificationEmail(IEmailSender _emailSender, Guid id, ModelStateDictionary modelState, string scheme, string host)
         {
-            var responseMsg = "Please check your email to confirm your email.";
+            var responseMsg = AccountConstants.SendVerificationEmailMsg;
 
             if (!modelState.IsValid)
                 throw new ApiException(ExceptionsTypes.ForgotPassword, modelState);
@@ -275,7 +269,7 @@ namespace Areas.Account.Models
 
         public async Task<string> ChangePassword(ChangePasswordViewModel viewModel, ModelStateDictionary modelState, ClaimsPrincipal currentUser)
         {
-            var responseMsg = "Your password has been changed.";
+            var responseMsg = AccountConstants.ChangePasswordMsg;
 
             this.ValidateModelState(modelState, viewModel);
 
@@ -312,7 +306,7 @@ namespace Areas.Account.Models
 
         public async Task<string> SetPassword(SetPasswordViewModel viewModel, ModelStateDictionary modelState, ClaimsPrincipal currentUser)
         {
-            var responseMsg = "Password has been set.";
+            var responseMsg = AccountConstants.SetPasswordMsg;
 
             this.ValidateModelState(modelState, viewModel);
 
@@ -354,7 +348,7 @@ namespace Areas.Account.Models
 
         public async Task<string> Update(Guid id, UserDetailsViewModel viewModel, ModelStateDictionary modelState)
         {
-            var responseMsg = "Your profile has been updated";
+            var responseMsg = AccountConstants.UpdateMsg;
 
             this.ValidateModelState(modelState, viewModel);
 

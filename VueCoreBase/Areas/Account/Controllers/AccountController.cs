@@ -41,7 +41,7 @@ namespace Areas.Account.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel viewModel)
         {
-            var result = await _model.Register(_signinManager, _emailSender, viewModel, ModelState, Request.Scheme, Request.Host.Value);
+            var result = await _model.Register(_emailSender, viewModel, ModelState, Request.Scheme, Request.Host.Value);
 
             return Ok(result);
         }
