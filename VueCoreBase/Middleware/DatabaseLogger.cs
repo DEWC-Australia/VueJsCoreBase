@@ -3,6 +3,14 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using Data.DatabaseLogger;
 
+//https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-2.2#log-category
+
+//maybe look at doing it old school with middleware
+// at least here I am looking at the route and user
+// could use the two types to tightly control logging without having to add logging into the base controllers and models.
+
+//https://exceptionnotfound.net/using-middleware-to-log-requests-and-responses-in-asp-net-core/
+
 namespace Middleware.DatabaseLogger
 {
     public class DatabaseLoggerConfiguration
