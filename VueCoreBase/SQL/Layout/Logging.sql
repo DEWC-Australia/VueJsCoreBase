@@ -5,7 +5,7 @@ CREATE TABLE DatabaseLogger.DatabaseLog(
 	[ID] uniqueidentifier default NEWID() NOT NULL PRIMARY KEY CLUSTERED ([ID] ASC),
 	[MachineName] [nvarchar](200) NULL,
 	[Logged] [datetime2] NOT NULL,
-	[Level] [varchar](5) NOT NULL,
+	[Level] [nvarchar](20) NOT NULL,
 	[Message] [nvarchar](max) NOT NULL,
 	[Logger] [nvarchar](300) NULL,
 	[Properties] [nvarchar](max) NULL,

@@ -5,7 +5,7 @@ namespace Data.DatabaseLogger
 {
     public partial class DatabaseLog
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string MachineName { get; set; }
         public DateTime Logged { get; set; }
         public string Level { get; set; }

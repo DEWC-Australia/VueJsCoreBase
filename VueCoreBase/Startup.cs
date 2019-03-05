@@ -16,6 +16,7 @@ using Middleware.Exception;
 using Services.Email;
 using Data.VueCoreBase;
 using Microsoft.Extensions.Logging;
+using Middleware.Logger;
 
 namespace VueCoreBase
 {
@@ -134,6 +135,8 @@ namespace VueCoreBase
             app.UseStaticFiles();
 
             app.UseAuthentication();
+
+            //app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
             app.UseMvc(routes =>
             {

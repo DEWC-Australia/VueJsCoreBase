@@ -58,7 +58,7 @@ namespace Middleware.DatabaseLogger
                 {
                     Console.WriteLine($"{logLevel.ToString()} - {eventId.Id} - {_name} - {formatter(state, exception)}");
                 }
-               
+
                 // want to add users - can get once it gets to controller
                 // annonymous page = annonymous user
                 // setup or somewhere else == loading
@@ -70,16 +70,18 @@ namespace Middleware.DatabaseLogger
                 // controllers - user/actions
                 // caldav - look at the controller being called
 
+                var message = formatter(state, exception);
+
+                string ex = exception == null ? null : exception.StackTrace;
 
                 _mDb.DatabaseLog.Add(new DatabaseLog
                 {
-                    Id = eventId.Id,
-                    Callsite = eventId.Name,
+                    Callsite = _name,
                     Level = logLevel.ToString(),
                     Logged = DateTime.UtcNow,
                     Logger = "Database Logger",
-                    Exception = exception == null ? null : exception.StackTrace,
-                    Message = formatter(state, exception),
+                    Exception = ex,
+                    Message = message.ToString(),
                     MachineName = $"{_applicationName} - {_environmentName}"
                 }
                 );

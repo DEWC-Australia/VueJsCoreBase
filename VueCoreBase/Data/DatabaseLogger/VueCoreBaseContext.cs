@@ -19,7 +19,11 @@ namespace Data.DatabaseLogger
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb; Database='VueCoreBase'; Trusted_Connection=True;");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -30,14 +34,15 @@ namespace Data.DatabaseLogger
             {
                 entity.ToTable("DatabaseLog", "DatabaseLogger");
 
-                entity.Property(e => e.Id).HasColumnName("ID");
+                entity.Property(e => e.Id)
+                    .HasColumnName("ID")
+                    .HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Callsite).HasMaxLength(300);
 
                 entity.Property(e => e.Level)
                     .IsRequired()
-                    .HasMaxLength(5)
-                    .IsUnicode(false);
+                    .HasMaxLength(20);
 
                 entity.Property(e => e.Logger).HasMaxLength(300);
 
