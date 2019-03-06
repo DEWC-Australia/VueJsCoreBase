@@ -20,7 +20,7 @@ namespace Controllers.Home
         public IActionResult Error()
         {
             ViewData["RequestId"] = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
-            return View();
+            return View(new HomeModel());
         }
     }
 }
