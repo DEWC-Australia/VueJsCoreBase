@@ -13,6 +13,8 @@ namespace Controllers.Exceptions
 {
     public enum ExceptionsTypes
     {
+        [Description("Logging Middleware Error")]
+        LoggingMiddlewareError,
         [Description("User Input Error")]
         UserInputError,
         [Description("Authorisation")]

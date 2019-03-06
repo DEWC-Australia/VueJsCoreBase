@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Data.DatabaseLogger
 {
-    public partial class DatabaseLog
+    public partial class ErrorLog
     {
         public Guid Id { get; set; }
         public string MachineName { get; set; }

@@ -1,11 +1,3 @@
-DROP TABLE dbo.__EFMigrationsHistory;
-DROP TABLE dbo.AspNetRoleClaims;
-DROP TABLE dbo.AspNetUserClaims;
-DROP TABLE dbo.AspNetUserLogins;
-DROP TABLE dbo.AspNetUserTokens;
-DROP TABLE dbo.AspNetUserRoles;
-DROP TABLE dbo.AspNetRoles;
-DROP TABLE dbo.AspNetUsers;
 
 /* The first part of the script wipes the database clean of any tables... 
    it's huge because it needs to delete stored procedures, foreign key relationships..

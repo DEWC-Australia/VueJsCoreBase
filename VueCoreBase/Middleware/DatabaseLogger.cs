@@ -42,7 +42,7 @@ namespace Middleware.DatabaseLogger
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            return logLevel == _config.LogLevel;
+            return logLevel >= _config.LogLevel;
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, System.Exception exception, Func<TState, System.Exception, string> formatter)
@@ -59,27 +59,16 @@ namespace Middleware.DatabaseLogger
                     Console.WriteLine($"{logLevel.ToString()} - {eventId.Id} - {_name} - {formatter(state, exception)}");
                 }
 
-                // want to add users - can get once it gets to controller
-                // annonymous page = annonymous user
-                // setup or somewhere else == loading
-                // everywhere else = userName
-
-                // might add different types of logs
-
-                // exceptions
-                // controllers - user/actions
-                // caldav - look at the controller being called
-
                 var message = formatter(state, exception);
 
                 string ex = exception == null ? null : exception.StackTrace;
 
-                _mDb.DatabaseLog.Add(new DatabaseLog
+                _mDb.ErrorLog.Add(new ErrorLog
                 {
                     Callsite = _name,
                     Level = logLevel.ToString(),
                     Logged = DateTime.UtcNow,
-                    Logger = "Database Logger",
+                    Logger = "ErrorLog",
                     Exception = ex,
                     Message = message.ToString(),
                     MachineName = $"{_applicationName} - {_environmentName}"

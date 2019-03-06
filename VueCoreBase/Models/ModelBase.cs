@@ -9,7 +9,8 @@ namespace Models.Base
         protected void ValidateModelState(ModelStateDictionary modelState, ViewModelBase viewModel)
         {
             if (!modelState.IsValid)
-                throw new ApiException(ExceptionsTypes.UserInputError, modelState, viewModel.Validations);
+                throw new ApiException(ExceptionsTypes.UserInputError, modelState);
+
         }
     }
 }

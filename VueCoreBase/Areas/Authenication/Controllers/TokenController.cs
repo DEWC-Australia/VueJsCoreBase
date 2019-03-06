@@ -6,7 +6,7 @@ using Areas.Authenication.Models;
 using System;
 using System.Threading.Tasks;
 using Controllers.Base;
-
+using Data.DatabaseLogger;
 
 namespace Areas.Authenication.Controllers
 {
@@ -18,11 +18,11 @@ namespace Areas.Authenication.Controllers
 
         private string NewRefreshTokenValue => Convert.ToBase64String(Guid.NewGuid().ToByteArray());
 
-        public TokenController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IConfiguration configuration, ASPIdentityContext db)
+        public TokenController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IConfiguration configuration, ASPIdentityContext db, DatabaseLoggerContext lDb)
         {
             _signInManager = signInManager;
             
-            _model = new TokenModel(userManager, configuration, db);
+            _model = new TokenModel(userManager, configuration, db, lDb);
         }
 
         [HttpPost]

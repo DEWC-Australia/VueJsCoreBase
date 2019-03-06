@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
+using Models.Base;
 using Models.VeeValidation;
 using System;
 using System.Collections.Generic;
@@ -15,33 +17,29 @@ namespace Controllers.Exceptions
             this.StatusCode = (int)HttpStatusCode.BadRequest;
             this.ContentType = @"application/json";
         }
-        public ApiException(ExceptionsTypes ErrorCode, string message, Dictionary<string, ClassProperty> validations = null) : base(ErrorCode, message)
+        public ApiException(ExceptionsTypes ErrorCode, string message, HttpStatusCode? statusCode = null) : base(ErrorCode, message)
         {
             Setup();
+            this.StatusCode = (statusCode == null) ? (int)HttpStatusCode.BadRequest : (int)statusCode;
             this.Errors = new List<string> { message };
-            this.Validations = validations;
+            this.Validations = null;
         }
 
-        public ApiException(ExceptionsTypes ErrorCode, string message, HttpStatusCode statusCode, Dictionary<string, ClassProperty> validations = null) : base(ErrorCode, message)
+        public ApiException(ExceptionsTypes ErrorCode, IEnumerable<IdentityError> errors, HttpStatusCode? statusCode = null) : base(ErrorCode, "Identity Error")
         {
             Setup();
-            this.Errors = new List<string> { message };
-            this.Validations = validations;
-        }
-
-        public ApiException(ExceptionsTypes ErrorCode, IEnumerable<IdentityError> errors, Dictionary<string, ClassProperty> validations = null) : base(ErrorCode, "Identity Error")
-        {
-            Setup();
+            this.StatusCode = (statusCode == null) ? (int)HttpStatusCode.BadRequest : (int)statusCode;
             this.Errors = errors.Select(a => $"Error: {a.Code} - {a.Description}").ToList();
-            this.Validations = validations;
+            this.Validations = null;
         }
 
 
-        public ApiException(ExceptionsTypes ErrorCode, Exception ex, Dictionary<string, ClassProperty> validations = null) : base(ErrorCode, ExceptionErrorToString(ex))
+        public ApiException(ExceptionsTypes ErrorCode, Exception ex, HttpStatusCode? statusCode = null) : base(ExceptionErrorCode(ex, ErrorCode), ExceptionErrorToString(ex))
         {
             Setup();
+            this.StatusCode = (statusCode == null) ? (int)HttpStatusCode.BadRequest : (int)statusCode;
             this.Errors = new List<string> { ExceptionErrorToString(ex) };
-            this.Validations = validations;
+            this.Validations = null;
         }
 
         public static string ExceptionErrorToString(Exception ex)
@@ -54,11 +52,27 @@ namespace Controllers.Exceptions
             return ex.Message;
         }
 
-        public ApiException(ExceptionsTypes ErrorCode, ModelStateDictionary modelState, Dictionary<string, ClassProperty> validations = null) : base(ErrorCode, "Model State Invalid")
+        public static ExceptionsTypes ExceptionErrorCode(Exception ex, ExceptionsTypes ErrorCode)
+        {
+            if(ex is DbUpdateException)
+            {
+                return ExceptionsTypes.DatabaseError;
+            }else if(ex is Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
+            {
+                return ExceptionsTypes.DatabaseError;
+            }
+
+            return ErrorCode;
+
+        }
+
+        public ApiException(ExceptionsTypes ErrorCode, ModelStateDictionary modelState, ViewModelBase viewModel = null, HttpStatusCode? statusCode = null) : base(ErrorCode, "Model State Invalid")
         {
             Setup();
+            this.StatusCode = (statusCode == null) ? (int)HttpStatusCode.BadRequest : (int)statusCode;
             this.Errors = ModelStateDictionaryToString(modelState);
-            this.Validations = validations;
+            this.Validations = (viewModel == null) ? null: viewModel.Validations;
+
         }
 
         public static List<string> ModelStateDictionaryToString(ModelStateDictionary modelState)

@@ -17,17 +17,20 @@ using Services.Email;
 using Data.VueCoreBase;
 using Microsoft.Extensions.Logging;
 using Middleware.Logger;
+using Data.DatabaseLogger;
 
 namespace VueCoreBase
 {
     public class Startup
     {
         private readonly ILogger _logger;
+        private readonly ILogger<ApiExceptionFilter> _apiLogger;
 
-        public Startup(IConfiguration configuration, ILogger<Startup> logger)
+        public Startup(IConfiguration configuration, ILogger<Startup> logger, ILogger<ApiExceptionFilter> apiLogger)
         {
             Configuration = configuration;
             _logger = logger;
+            _apiLogger = apiLogger;
         }
 
         public IConfiguration Configuration { get; }
@@ -46,15 +49,19 @@ namespace VueCoreBase
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
-            _logger.LogWarning("Added Email sender to services");
+            _logger.LogInformation("Added Email sender to services");
 
             services.AddDbContext<ASPIdentityContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            _logger.LogInformation("Added ASPIdentityContext to services");
 
             services.AddDbContext<VueCoreBaseContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            _logger.LogInformation("Added VueCoreBaseContext to services");
 
-            
+            services.AddDbContext<DatabaseLoggerContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            _logger.LogInformation("Added DatabaseLoggerContext to services");
 
             services.AddIdentity<ApplicationUser, ApplicationRole>(
                 opts =>
@@ -78,6 +85,8 @@ namespace VueCoreBase
                 )
             .AddEntityFrameworkStores<ASPIdentityContext>()
             .AddDefaultTokenProviders();
+
+            _logger.LogInformation("Added AddIdentity to services with the following Password Restrictions: {RequireDigit, RequireLowercase, RequireUppercase, RequiredLength, Lockout 30 min after 5 attempts, Confirm email required} ");
 
             // Add ASP.NET Identity support
             services.AddAuthentication(options =>
@@ -108,9 +117,13 @@ namespace VueCoreBase
                     };
                 });
 
-            services.AddMvc(options => {options.Filters.Add(new ApiExceptionFilter());})
+            _logger.LogInformation("Added Jwt Authenication to services");
+
+            services.AddMvc(options => {options.Filters.Add(new ApiExceptionFilter(_apiLogger));})
                 .AddJsonOptions( options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore)
                 .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_2);
+
+            _logger.LogInformation("Added Jwt MVC with ApiExceptionFilter for ASP.NET Core Version_2_2 to services");
 
         }
 
@@ -119,6 +132,7 @@ namespace VueCoreBase
         {
              if (env.IsDevelopment())
             {
+                _logger.LogInformation("System is in development mode");
                 app.UseDeveloperExceptionPage();
                 app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
                 {
@@ -127,16 +141,29 @@ namespace VueCoreBase
             }
             else
             {
+                _logger.LogInformation("System is in Production mode");
+
                 app.UseExceptionHandler("/Home/Error");
+
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
+
+            _logger.LogInformation("System is using Https Redirection");
+
             app.UseCookiePolicy(); // optional GDPR
+            _logger.LogInformation("System is using Cookie Policy");
+
             app.UseStaticFiles();
 
             app.UseAuthentication();
 
-            //app.UseMiddleware<RequestResponseLoggingMiddleware>();
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
+
+            _logger.LogInformation("System is using Request Response Logging");
+
+
+            _logger.LogInformation("Starting Mvc");
 
             app.UseMvc(routes =>
             {

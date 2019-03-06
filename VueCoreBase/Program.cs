@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Middleware.DatabaseLogger;
 
+
 namespace VueCoreBase
 {
     public class Program
@@ -23,6 +24,7 @@ namespace VueCoreBase
                 .UseStartup<Startup>()
                 .ConfigureLogging((hostingContext, logging) =>
                 {
+
                     DbContextOptionsBuilder<DatabaseLoggerContext> options = new DbContextOptionsBuilder<DatabaseLoggerContext>();
                    
                     logging.AddProvider(new DatabaseLoggerProvider(

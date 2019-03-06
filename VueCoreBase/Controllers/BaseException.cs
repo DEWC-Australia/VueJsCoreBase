@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -18,6 +19,8 @@ namespace Controllers.Exceptions
         public BaseException(ExceptionsTypes ErrorCode, string Message): base(String.Format("{0} ({1})", Message, GetDescription(ErrorCode)))
         {
             ExceptionType = ErrorCode;
+            if(ExceptionType == ExceptionsTypes.DatabaseError || ExceptionType == ExceptionsTypes.SystemError)
+                StatusCode = (int)HttpStatusCode.InternalServerError;
         }
 
        

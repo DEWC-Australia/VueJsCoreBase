@@ -1,5 +1,6 @@
 ﻿using ASPIdentity.Data;
 using Controllers.Exceptions;
+using Data.DatabaseLogger;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
@@ -20,13 +21,15 @@ namespace Areas.Authenication.Models
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
         private ASPIdentityContext _mDb { get; set; }
+        private DatabaseLoggerContext _lDb { get; set; }
 
         private string NewRefreshTokenValue => Convert.ToBase64String(Guid.NewGuid().ToByteArray());
-        public TokenModel(UserManager<ApplicationUser> userManager, IConfiguration configuration, ASPIdentityContext db)
+        public TokenModel(UserManager<ApplicationUser> userManager, IConfiguration configuration, ASPIdentityContext db, DatabaseLoggerContext lDb)
         {
             _configuration = configuration;
             _userManager = userManager;
             _mDb = db;
+            _lDb = lDb;
         }
 
         public async Task<TokenViewModel> GetToken(SignInManager<ApplicationUser> _signInManager, LoginViewModel viewModel, ModelStateDictionary modelState)
@@ -80,6 +83,16 @@ namespace Areas.Authenication.Models
 
                 var token = await GenerateToken(user, rt.Value);
 
+
+                await _lDb.UserLog.AddAsync(new UserLog {
+                    DateTimeStamp = DateTime.UtcNow,
+                    TokenType = "Token",
+                    UserName = user.UserName
+
+                });
+
+                await _lDb.SaveChangesAsync();
+
                 return token;
 
             }
@@ -118,6 +131,16 @@ namespace Areas.Authenication.Models
             await _mDb.SaveChangesAsync();
 
             var token = await GenerateToken(user, rt.Value);
+
+            await _lDb.UserLog.AddAsync(new UserLog
+            {
+                DateTimeStamp = DateTime.UtcNow,
+                TokenType = "Refresh",
+                UserName = user.UserName
+
+            });
+
+            await _lDb.SaveChangesAsync();
 
             return token;
         }
