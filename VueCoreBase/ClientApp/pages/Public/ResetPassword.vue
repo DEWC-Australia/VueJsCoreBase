@@ -73,8 +73,6 @@
                                 code: this.code
                             };
 
-                            const payload = {};
-
                             this.$store.commit("startLoading");
 
                             axios
