@@ -64,7 +64,7 @@ module.exports = env => {
                     ]
                     : [
                         // Plugins that apply in production builds only
-                        new UglifyJSPlugin(),
+                        //new UglifyJSPlugin(),
                         new ExtractTextPlugin("site.css")
                     ]
             )
