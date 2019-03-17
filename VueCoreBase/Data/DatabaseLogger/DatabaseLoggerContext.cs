@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Data.DatabaseLogger
 {
@@ -21,6 +22,8 @@ namespace Data.DatabaseLogger
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            if (!optionsBuilder.IsConfigured)
+            { }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -48,6 +51,10 @@ namespace Data.DatabaseLogger
                 entity.Property(e => e.Response).IsRequired();
 
                 entity.Property(e => e.ResponseContentType).HasMaxLength(256);
+
+                entity.Property(e => e.UserAgent)
+                    .IsRequired()
+                    .HasMaxLength(256);
             });
 
             modelBuilder.Entity<ErrorLog>(entity =>
@@ -84,6 +91,10 @@ namespace Data.DatabaseLogger
                     .HasMaxLength(50);
 
                 entity.Property(e => e.Path)
+                    .IsRequired()
+                    .HasMaxLength(256);
+
+                entity.Property(e => e.UserAgent)
                     .IsRequired()
                     .HasMaxLength(256);
             });

@@ -22,3 +22,9 @@ export const isAuthenticated = state => {
         state.auth.access_token !== null
     );
 };
+
+export const isInRole = (state, getters) => role => {
+    const result = getters.isAuthenticated && state.auth.roles.indexOf(role) > -1;
+    return result;
+};
+

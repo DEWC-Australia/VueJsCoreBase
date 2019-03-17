@@ -21,7 +21,7 @@
 <script>
     import { clientRoutes } from '../../variables/variables.js';
     export default {
-        name: 'footer',
+        name: 'page-footer',
         data(){
             return{
                 footerLists:

@@ -22,32 +22,34 @@ router.beforeEach((to, from, next) => {
     NProgress.start();
 
     // 
-    if (to.matched.some(route => route.meta.requiresAuth)) {
+    if (to.matched.some(route =>
+        route.meta.requiresAuth)) {
+
         if (!store.getters.isAuthenticated) {
+
             store.commit("showAuthModal");
             next({ path: from.path, query: { redirect: to.path } });
+
         } else {
-            if (
-                to.matched.some(
-                    route => route.meta.role && store.getters.isInRole(route.meta.role)
-                )
-            ) {
+
+            if (to.matched.some(
+                route => route.meta.role && store.getters.isInRole(route.meta.role)
+            )) {
                 next();
-            } else if (!to.matched.some(route => route.meta.role)) {
+            } else if (!to.matched.some(
+                route => route.meta.role)) {
                 next();
             } else {
                 next({ path: "/" });
             }
         }
     } else {
-        if (
-            to.matched.some(
-                route =>
-                    route.meta.role &&
-                    (!store.getters.isAuthenticated ||
-                        store.getters.isInRole(route.meta.role))
-            )
-        ) {
+        if (to.matched.some(
+            route =>
+                route.meta.role &&
+                (!store.getters.isAuthenticated ||
+                    store.getters.isInRole(route.meta.role))
+        )) {
             next();
         } else {
             if (to.matched.some(route => route.meta.role)) {

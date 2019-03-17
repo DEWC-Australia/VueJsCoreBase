@@ -30,6 +30,15 @@ export const httpHeaders = {
     auth: 'Authorization'
 };
 
+export const validation = {
+    passwordRelax: { required: true, max: 100 },
+    passwordStrict: { required: true, min: 8, max: 100, regex: '^(?=.*[#$^+=!*()@%&])(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,100}$' },
+    email: { required: true, email: true, max: 250 },
+    firstName: { required: true, max: 250 },
+    lastName: { required: true, max: 250 }
+};
+
+
 export const clientRoutes = {
     home: '/',
     contact: '/contact',

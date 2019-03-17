@@ -34,37 +34,45 @@ export function fieldState(field, errors, fields) {
     }
 };
 
-export function processResponseErrors(errors) {
+export function processResponseErrors(axios) {
 
-    if (errors !== undefined) {
-        return errors;
+
+    if (axios.response === undefined && axios.response === null) {
+
+        if (axios.data !== undefined && axios.data.errors !== undefined) {
+            return axios.data.errors;
+        }
+
+    } else if (axios.response.data !== undefined && axios.response.data.errors !== undefined) {
+        return axios.response.data.errors;
     }
 
     return [];
 };
 
-export function processProperties(properties, data, setValue, setDisplay) {
+export function processProperties(axios, data, setValue, setDisplay) {
     // test that the server has returned view model properties
-    if (!(properties === null ||
-        properties === undefined)) {
+    if (!(axios.data === undefined ||
+        axios.data.properties === null ||
+        axios.data.properties === undefined)) {
 
         // get the keys for the servers viewmodel properties
-        var keys = Object.keys(properties);
+        var keys = Object.keys(axios.data.properties);
 
         for (var i = 0; i < keys.length; i++) {
             var key = keys[i];
             if (!(data[key] === null || data[key] === undefined)) {
 
                 if (data[key].validations !== undefined) {
-                    data[key].validations = properties[key].validations;
+                    data[key].validations = axios.data.properties[key].validations;
                 }// end of validations assignment
 
                 if (data[key].value !== undefined && setValue) {
-                    data[key].value = properties[key].value;
+                    data[key].value = axios.data.properties[key].value;
                 }// end of value assignment
 
                 if (data[key].displayName !== undefined && setDisplay) {
-                    data[key].displayName = properties[key].displayName;
+                    data[key].displayName = axios.data.properties[key].displayName;
                 }// end of displayName assignment
 
             }// end of property assignment

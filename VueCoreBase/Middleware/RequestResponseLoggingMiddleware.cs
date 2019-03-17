@@ -14,10 +14,30 @@ namespace Middleware.Logger
     public class RequestResponseLoggingMiddleware
     {
         private readonly RequestDelegate _next;
+        private int ErrorLevel = 400;
 
         public RequestResponseLoggingMiddleware(RequestDelegate next)
         {
             _next = next;
+        }
+
+        private string UserName(HttpContext context)
+        {
+            string userName = (context.User.Identity == null && context.User.Identity.Name == null) ? "Anonyomous" : context.User.Identity.Name;
+
+            string authHeader = context.Request.Headers["Authorization"];
+
+            if (userName == null && authHeader != null && authHeader.StartsWith("Basic "))
+            {
+                // Get the encoded username and password
+                var encodedUsernamePassword = authHeader.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries)[1]?.Trim();
+                // Decode from Base64 to string
+                var decodedUsernamePassword = Encoding.UTF8.GetString(Convert.FromBase64String(encodedUsernamePassword));
+                // Split username and password
+                userName = decodedUsernamePassword.Split(':', 2)[0];
+            }
+
+            return userName;
         }
 
         public async Task Invoke(HttpContext context, DatabaseLoggerContext db)
@@ -27,13 +47,14 @@ namespace Middleware.Logger
             bool containsWellknownPath = context.Request.Path.ToString().ToLower().Contains(".well-known/caldav");
 
             // can log the user now 
-            string user = (context.User.Identity == null && context.User.Identity.Name == null) ? "Anonyomous" : context.User.Identity.Name;
+            string user = UserName(context);
             // stream to restore the request body
             MemoryStream injectedRequestStream = new MemoryStream();
 
             //Copy a pointer to the original response body stream
             Stream originalBodyStream = context.Response.Body;
 
+            string userAgent = "";
 
             try
             {
@@ -45,7 +66,6 @@ namespace Middleware.Logger
                 injectedRequestStream.Seek(0, SeekOrigin.Begin);
                 context.Request.Body = injectedRequestStream;
 
-                
 
                 //Create a new memory stream...
                 using (var responseBody = new MemoryStream())
@@ -67,15 +87,19 @@ namespace Middleware.Logger
 
 
                     // caldav log
-                    if (containsBasePath || containsWellknownPath)
+                    if ((containsBasePath || containsWellknownPath) && context.Response.StatusCode >= ErrorLevel)
                     {
                         StringBuilder requestText = new StringBuilder();
                         StringBuilder responseText = new StringBuilder();
-
+                        requestText.AppendLine("");
+                        requestText.AppendLine("#######################################################");
                         requestText.AppendLine($"Start - {((DateTime)request["Start"]).ToString()}");
                         requestText.AppendLine($"REQUEST HttpMethod: {request["Method"]}, Path: {request["Path"]}");
                         requestText.AppendLine($"Headers:");
                         Dictionary<string, string> headers = request["Headers"];
+
+                        userAgent = (headers.ContainsKey("User-Agent")) ? headers["User-Agent"] : "";
+
                         foreach (var header in headers)
                         {
                             requestText.AppendLine($"{header.Key}: {header.Value}");
@@ -83,9 +107,12 @@ namespace Middleware.Logger
                         requestText.AppendLine($"Body :");
                         requestText.AppendLine(request["Body"]);
 
+                        responseText.AppendLine("");
+                        responseText.AppendLine("#######################################################");
                         responseText.AppendLine($"Http/1.1: {response["StatusCode"]}");
                         responseText.AppendLine($"Content-Type: {context.Response.ContentType}");
                         headers = response["Headers"];
+
                         foreach (var header in headers)
                         {
                             responseText.AppendLine($"{header.Key}: {header.Value}");
@@ -93,24 +120,38 @@ namespace Middleware.Logger
                         responseText.AppendLine($"Body :");
                         responseText.AppendLine(request["Body"]);
 
+                        responseText.AppendLine($"Stop - {((DateTime)response["Stop"]).ToString()}");
+                        responseText.AppendLine("");
+                        responseText.AppendLine("#######################################################");
+                        responseText.AppendLine("");
+
+                        string responseContentType = null;
+
+                        if (response.ContainsKey("ContentType") && response["ContentType"] != null)
+                            responseContentType = (response["ContentType"] as string).Length > 255 ? (response["ContentType"] as string).Substring(0, 255) : (response["ContentType"] as string);
+
                         await db.CalDavLog.AddAsync(new CalDavLog
                         {
                             Method = request["Method"],
-                            Path = request["Path"],
+                            Path = (request["Path"] as string).Length > 255 ? (request["Path"] as string).Substring(0, 255) : (request["Path"] as string),
                             Start = request["Start"],
                             Stop = response["Stop"],
-                            ResponseContentType = response["ContentType"],
+                            UserAgent = userAgent.Length > 255 ? userAgent.Substring(0, 255) : userAgent,
+                            ResponseContentType = responseContentType,
                             StatusCode = response["StatusCode"],
-                            Response = requestText.ToString(),
-                            Request = responseText.ToString()
+                            Response = responseText.ToString(),
+                            Request = requestText.ToString()
                         });
                     }
 
-                    await db.RequestLog.AddAsync(new RequestLog {
+                    userAgent = context.Request.Headers.ContainsKey("User-Agent") ? context.Request.Headers["User-Agent"].First() : "";
+                    await db.RequestLog.AddAsync(new RequestLog
+                    {
                         Method = request["Method"],
-                        Path = request["Path"],
+                        Path = (request["Path"] as string).Length > 255 ? (request["Path"] as string).Substring(0, 255) : (request["Path"] as string),
                         Start = request["Start"],
                         Stop = response["Stop"],
+                        UserAgent = userAgent.Length > 255 ? userAgent.Substring(0, 255) : userAgent,
                         StatusCode = response["StatusCode"],
                         UserName = user
                     });
@@ -127,10 +168,10 @@ namespace Middleware.Logger
                 context.Response.Body = originalBodyStream;
                 injectedRequestStream.Dispose();
             }
-           
+
         }
 
-        private async Task<Dictionary<string,dynamic>> FormatRequest(HttpRequest request)
+        private async Task<Dictionary<string, dynamic>> FormatRequest(HttpRequest request)
         {
             Dictionary<string, dynamic> requestLog = new Dictionary<string, dynamic>();
             requestLog.Add("Start", DateTime.Now);
@@ -149,7 +190,7 @@ namespace Middleware.Logger
             {
 
                 string bodyText = await bodyReader.ReadToEndAsync();
-                
+
                 if (string.IsNullOrWhiteSpace(bodyText) == false)
                 {
                     requestLog.Add("Body", bodyText);

@@ -29,14 +29,13 @@ const routes = [
     {
         path: clientRoutes.setPassword,
         component: SetPassword,
-        meta: { requiresAuth: true, role: "Admin" },
-        redirect: clientRoutes.notAuthorised
+        meta: { requiresAuth: true, role: "Admin", redirect: clientRoutes.notAuthorised }
+        
     },
     {
         path: clientRoutes.changePassword,
         component: ChangePassword,
-        meta: { requiresAuth: true, role: "User" },
-        redirect: clientRoutes.notAuthorised
+        meta: { requiresAuth: true, role: "User", redirect: clientRoutes.notAuthorised }
     },
 
     { path: "*", redirect: clientRoutes.home }

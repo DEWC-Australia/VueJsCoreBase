@@ -28,5 +28,9 @@ const store = new Vuex.Store({
     state: state
 });
 
+store.subscribe((mutation, state) => {
+    localStorage.setItem("store", JSON.stringify(state));
+});
+
 // export the Vuex store for global use
 export default store;

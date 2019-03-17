@@ -85,9 +85,9 @@
                                 }) // End Dispatch Then
                                 .catch(error => {
 
-                                    this.serverErr = processResponseErrors(error.data.errors);
+                                    this.serverErr = processResponseErrors(error);
 
-                                    processProperties(error.data.properties,
+                                    processProperties(error,
                                         this._data, false, false);
 
                                 }); // end Catch
@@ -99,7 +99,7 @@
                 
             },
             state(field) {
-                return fieldState(field, this.errors, this.fields);
+                return fieldState(field, this.errors, this.veeFields);
             }
 
         }

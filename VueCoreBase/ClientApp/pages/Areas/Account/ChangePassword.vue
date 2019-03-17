@@ -79,9 +79,9 @@
                                     this.$store.commit("finishLoading");
                                 })// end then
                                 .catch(error => {
-                                    this.serverErr = processResponseErrors(error.data.errors);
+                                    this.serverErr = processResponseErrors(error);
 
-                                    processProperties(error.data.properties,
+                                    processProperties(error,
                                         this._data, false, false);
 
                                     this.$store.commit("finishLoading");

@@ -19,7 +19,7 @@
         },
         methods: {
             state(field) {
-                return fieldState(field, this.errors, this.fields);
+                return fieldState(field, this.errors, this.veeFields);
             }
         }
     }

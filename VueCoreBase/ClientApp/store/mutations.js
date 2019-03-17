@@ -12,7 +12,12 @@
  * is transparent and traceable.
  * 
  * 
- */ 
+ */
+
+export const initialise = (state, payload) => {
+    Object.assign(state, payload);
+};
+
 
 export const showAuthModal = state => {
     state.showAuthModal = true;

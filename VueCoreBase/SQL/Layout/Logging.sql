@@ -1,6 +1,5 @@
 ﻿--Scaffold-DbContext -Connection "Server=(localdb)\mssqllocaldb; Database='VueCoreBase'; Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Data\DatabaseLogger -Schemas DatabaseLogger -Force
 
-
 CREATE TABLE DatabaseLogger.ErrorLog(
 	[ID] uniqueidentifier default NEWID() NOT NULL PRIMARY KEY CLUSTERED ([ID] ASC),
 	[MachineName] [nvarchar](200) NULL,
@@ -17,6 +16,7 @@ CREATE TABLE DatabaseLogger.ErrorLog(
 	[ID] uniqueidentifier default NEWID() NOT NULL PRIMARY KEY CLUSTERED ([ID] ASC),
 	[Start] [datetime2] NOT NULL,
 	[Stop] [datetime2] NOT NULL,
+	[UserAgent] [nvarchar](256) NOT NULL,
 	[Method] [nvarchar](50) NOT NULL,
 	[Path] [nvarchar](256) NOT NULL,
 	[Request] [nvarchar](max) NOT NULL,
@@ -29,6 +29,7 @@ CREATE TABLE DatabaseLogger.ErrorLog(
 	[ID] uniqueidentifier default NEWID() NOT NULL PRIMARY KEY CLUSTERED ([ID] ASC),
 	[Start] [datetime2] NOT NULL,
 	[Stop] [datetime2] NOT NULL,
+	[UserAgent] [nvarchar](256) NOT NULL,
 	[Method] [nvarchar](50) NOT NULL,
 	[Path] [nvarchar](256) NOT NULL,
 	[StatusCode] INTEGER NULL,

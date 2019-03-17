@@ -13,7 +13,7 @@ import BootstrapVue from "bootstrap-vue";
 import VeeValidate from "vee-validate";
 
 // import the bootstrap and bootstrap-vue css
-import "../node_modules/bootstrap-vue/node_modules/bootstrap/dist/css/bootstrap.min.css";
+import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../node_modules/bootstrap-vue/dist/bootstrap-vue.css";
 
 //helpers
@@ -25,7 +25,8 @@ import { httpHeaders } from './variables/variables.js';
 // attach BootstrapVue
 Vue.use(BootstrapVue);
 // attach VeeValidate
-Vue.use(VeeValidate);
+Vue.use(VeeValidate, { fieldsBagName: 'veeFields' });
+
 
 // Setup authorisation upon initialisation using store and axios header
 import axios from "axios";
