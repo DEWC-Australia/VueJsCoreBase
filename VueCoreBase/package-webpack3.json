@@ -20,9 +20,9 @@
     "uglifyjs-webpack-plugin": "^1.1.8",
     "url-loader": "^1.1.2",
     "vue": "^2.6.9",
-    "vue-loader": "^15.1.0",
+    "vue-loader": "^14.2.2",
     "vue-router": "^3.0.2",
-    "vue-template-compiler": "^2.6.9",
+    "vue-template-compiler": "^2.5.16",
     "webpack": "^3.12.0",
     "webpack-hot-middleware": "^2.24.3"
   },
